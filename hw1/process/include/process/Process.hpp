@@ -27,7 +27,6 @@ public:
     void readExact(void* data, size_t len);
 
     constexpr bool isReadable() const;
-    bool isRunning() const;
 
     void closeStdin();
     void close() noexcept;
