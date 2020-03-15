@@ -20,5 +20,5 @@ target_link_libraries(${EX_ECHO_MAIN_NAME}
 
 set_target_properties(${EX_ECHO_CHILD_NAME} ${EX_ECHO_MAIN_NAME}
     PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
