@@ -26,7 +26,7 @@ public:
     size_t read(void* data, size_t len);
     void readExact(void* data, size_t len);
 
-    constexpr bool isReadable() const;
+    bool isReadable() const;
 
     void closeStdin();
     void close() noexcept;
