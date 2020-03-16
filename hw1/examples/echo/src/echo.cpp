@@ -4,7 +4,7 @@
 #include <bitset>
 
 
-void send(FILE* stream, std::string& msg)
+void send(FILE* stream, const std::string& msg)
 {
     if (msg.length() >= 256)
     {
