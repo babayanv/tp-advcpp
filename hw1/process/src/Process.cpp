@@ -92,7 +92,7 @@ void Process::readExact(void* data, size_t len)
 }
 
 
-constexpr bool Process::isReadable() const
+bool Process::isReadable() const
 {
     return m_is_readable;
 }
