@@ -6,13 +6,13 @@
 
 namespace proc {
 
-constexpr const int PIPE_FAILED = -1;
-constexpr const int FORK_FAILED = -1;
-constexpr const int CHILD_PROCESS = 0;
-constexpr const int EXEC_FAILED = -1;
-constexpr const int WRITE_FAILED = -1;
-constexpr const int READ_FAILED = -1;
-constexpr const int READ_EOF = 0;
+constexpr int PIPE_FAILED = -1;
+constexpr int FORK_FAILED = -1;
+constexpr int CHILD_PROCESS = 0;
+constexpr int EXEC_FAILED = -1;
+constexpr int WRITE_FAILED = -1;
+constexpr int READ_FAILED = -1;
+constexpr int READ_EOF = 0;
 
 
 class Process
