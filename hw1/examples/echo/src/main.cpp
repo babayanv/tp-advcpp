@@ -12,24 +12,22 @@ void send(proc::Process& p, const std::string& msg)
         return;
     }
 
-    char len_msg[3] = {0};
-    std::snprintf(len_msg, 3, "%zu", msg.length());
+    size_t msg_length = msg.size();
 
-    p.writeExact(len_msg, 3);
-    p.writeExact(msg.c_str(), msg.length());
+    p.writeExact(&msg_length, sizeof(size_t));
+    p.writeExact(msg.c_str(), msg.size());
 }
 
 
 std::string receive(proc::Process& p)
 {
+    size_t msg_length = 0;
+    p.readExact(&msg_length, sizeof(size_t));
+
     char buff[256] = {0};
+    p.readExact(buff, msg_length);
 
-    p.readExact(buff, 3);
-    size_t length = std::stoul(std::string(buff, 3));
-
-    p.readExact(buff, length);
-
-    return std::string{buff, length};
+    return std::string{buff, msg_length};
 }
 
 

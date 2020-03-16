@@ -1,7 +1,6 @@
 #include <unistd.h>
 #include <cstdio>
 #include <string>
-#include <bitset>
 
 
 void send(FILE* stream, const std::string& msg)
@@ -11,27 +10,23 @@ void send(FILE* stream, const std::string& msg)
         return;
     }
 
-    char len_msg[3] = {0};
-    std::snprintf(len_msg, 3, "%zu", msg.length());
+    size_t msg_length = msg.size();
 
-    fwrite(len_msg, 1, 3, stream);
-    fwrite(msg.c_str(), 1, msg.length(), stream);
-
+    fwrite(&msg_length, sizeof(size_t), 1, stream);
+    fwrite(msg.c_str(), 1, msg_length, stream);
     fflush(stream);
 }
 
 
 std::string receive(FILE* stream)
 {
+    size_t msg_length = 0;
+    fread(&msg_length, sizeof(size_t), 1, stream);
+
     char buff[256] = {0};
+    fread(buff, 1, msg_length, stream);
 
-    fread(buff, 1, 3, stream);
-
-    size_t length = std::stoul(std::string(buff, 3));
-
-    fread(buff, 1, length, stream);
-
-    return std::string{buff, length};
+    return std::string{buff, msg_length};
 }
 
 
