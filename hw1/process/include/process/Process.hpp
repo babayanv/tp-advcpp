@@ -34,16 +34,16 @@ public:
     void terminate() noexcept;
 
 private:
-    int m_p2c_fd[2];
-    int m_c2p_fd[2];
+    int m_p2c_fd;
+    int m_c2p_fd;
     pid_t m_pid;
 
     bool m_is_readable;
 
 private:
-    void initPipes();
-    void initAsChild(const std::string& path);
-    void initAsParent();
+    void initPipes(int (&fd1)[2], int (&fd2)[2]);
+    void initAsChild(const std::string& path, int (&p2c_fd)[2], int (&c2p_fd)[2]);
+    void initAsParent(int (&p2c_fd)[2], int (&c2p_fd)[2]);
 };
 
 } // namespace proc

@@ -11,7 +11,9 @@ namespace proc
 Process::Process(const std::string& path)
     : m_is_readable(true)
 {
-    initPipes();
+    int p2c_fd[2] = {0};
+    int c2p_fd[2] = {0};
+    initPipes(p2c_fd, c2p_fd);
 
     m_pid = fork();
     switch (m_pid) 
@@ -20,11 +22,11 @@ Process::Process(const std::string& path)
         throw BadProcess();
 
     case CHILD_PROCESS:
-        initAsChild(path);
+        initAsChild(path, p2c_fd, c2p_fd);
         break;
 
     default:
-        initAsParent();
+        initAsParent(p2c_fd, c2p_fd);
         return;
     }
 }
@@ -39,7 +41,7 @@ Process::~Process()
 
 size_t Process::write(const void* data, size_t len)
 {
-    ssize_t bytes_written = ::write(m_p2c_fd[1], data, len);
+    ssize_t bytes_written = ::write(m_p2c_fd, data, len);
 
     if (bytes_written == WRITE_FAILED)
     {
@@ -64,7 +66,7 @@ void Process::writeExact(const void* data, size_t len)
 
 size_t Process::read(void* data, size_t len)
 {
-    ssize_t bytes_read = ::read(m_c2p_fd[0], data, len);
+    ssize_t bytes_read = ::read(m_c2p_fd, data, len);
 
     if (bytes_read == READ_FAILED)
     {
@@ -100,14 +102,14 @@ bool Process::isReadable() const
 
 void Process::closeStdin()
 {
-    ::close(m_p2c_fd[1]);
+    ::close(m_p2c_fd);
 }
 
 
 void Process::close() noexcept
 {
-    ::close(m_c2p_fd[0]);
-    ::close(m_p2c_fd[1]);
+    ::close(m_c2p_fd);
+    ::close(m_p2c_fd);
 
     m_is_readable = false;
 }
@@ -120,32 +122,32 @@ void Process::terminate() noexcept
 }
 
 
-void Process::initPipes()
+void Process::initPipes(int (&fd1)[2], int (&fd2)[2])
 {
-    if (pipe(m_p2c_fd) == PIPE_FAILED)
+    if (pipe(fd1) == PIPE_FAILED)
     {
         throw BadProcess();
     }
 
-    if (pipe(m_c2p_fd) == PIPE_FAILED)
+    if (pipe(fd2) == PIPE_FAILED)
     {
-        ::close(m_p2c_fd[0]);
-        ::close(m_p2c_fd[1]);
+        ::close(fd1[0]);
+        ::close(fd1[1]);
 
         throw BadProcess();
     }
 }
 
 
-void Process::initAsChild(const std::string& path)
+void Process::initAsChild(const std::string& path, int (&p2c_fd)[2], int (&c2p_fd)[2])
 {
-    dup2(m_p2c_fd[0], STDIN_FILENO);
-    dup2(m_c2p_fd[1], STDOUT_FILENO);
+    dup2(p2c_fd[0], STDIN_FILENO);
+    dup2(c2p_fd[1], STDOUT_FILENO);
 
-    ::close(m_p2c_fd[0]);
-    ::close(m_p2c_fd[1]);
-    ::close(m_c2p_fd[0]);
-    ::close(m_c2p_fd[1]);
+    ::close(p2c_fd[0]);
+    ::close(p2c_fd[1]);
+    ::close(c2p_fd[0]);
+    ::close(c2p_fd[1]);
 
     if (execl(path.c_str(), path.c_str(), nullptr) == EXEC_FAILED)
     {
@@ -154,10 +156,13 @@ void Process::initAsChild(const std::string& path)
 }
 
 
-void Process::initAsParent()
+void Process::initAsParent(int (&p2c_fd)[2], int (&c2p_fd)[2])
 {
-    ::close(m_p2c_fd[0]);
-    ::close(m_c2p_fd[1]);
+    m_p2c_fd = p2c_fd[1];
+    m_c2p_fd = c2p_fd[0];
+
+    ::close(p2c_fd[0]);
+    ::close(c2p_fd[1]);
 }
 
 } // namespace proc
