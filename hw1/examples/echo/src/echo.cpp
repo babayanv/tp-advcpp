@@ -6,7 +6,7 @@
 
 void send(FILE* stream, const std::string& msg)
 {
-    if (msg.length() >= 256)
+    if (msg.size() >= 256)
     {
         return;
     }
