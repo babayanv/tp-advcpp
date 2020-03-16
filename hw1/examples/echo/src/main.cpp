@@ -29,7 +29,7 @@ std::string receive(proc::Process& p)
 
     p.readExact(buff, length);
 
-    return std::string(buff, length);
+    return std::string{buff, length};
 }
 
 

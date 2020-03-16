@@ -31,7 +31,7 @@ std::string receive(FILE* stream)
 
     fread(buff, 1, length, stream);
 
-    return std::string(buff, length);
+    return std::string{buff, length};
 }
 
 
