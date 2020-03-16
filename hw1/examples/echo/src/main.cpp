@@ -12,9 +12,10 @@ void send(proc::Process& p, const std::string& msg)
         return;
     }
 
-    std::bitset<8> bs(msg.length());
+    char len_msg[3] = {0};
+    std::snprintf(len_msg, 3, "%zu", msg.length());
 
-    p.write(bs.to_string().c_str(), 8);
+    p.write(len_msg, 3);
     p.write(msg.c_str(), msg.length());
 }
 
@@ -23,10 +24,8 @@ std::string receive(proc::Process& p)
 {
     char buff[256] = {0};
 
-    p.read(buff, 8);
-
-    std::bitset<8> bs(buff);
-    size_t length = bs.to_ulong();
+    p.read(buff, 3);
+    size_t length = std::stoul(std::string(buff, 3));
 
     p.read(buff, length);
 
@@ -36,16 +35,26 @@ std::string receive(proc::Process& p)
 
 int main()
 {
-    proc::Process proc("./echo_child");
-
-    while (!feof(stdin))
+    try
     {
-        std::string msg;
-        std::cin >> msg;
+        proc::Process proc("./echo_child");
 
-        send(proc, msg);
-        std::cout << receive(proc) << std::endl;
+        while (!feof(stdin))
+        {
+            std::string msg;
+            std::cin >> msg;
+
+            send(proc, msg);
+            std::cout << receive(proc) << std::endl;
+        }
     }
+    catch (const proc::BadProcess& bp)
+    {
+        std::cerr << bp.what() << std::endl;
+
+        return 1;
+    }
+
 
     return 0;
 }

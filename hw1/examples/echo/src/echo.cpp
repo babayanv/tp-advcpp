@@ -11,9 +11,10 @@ void send(FILE* stream, std::string& msg)
         return;
     }
 
-    std::bitset<8> bs(msg.length());
+    char len_msg[3] = {0};
+    std::snprintf(len_msg, 3, "%zu", msg.length());
 
-    fwrite(bs.to_string().c_str(), 1, 8, stream);
+    fwrite(len_msg, 1, 3, stream);
     fwrite(msg.c_str(), 1, msg.length(), stream);
 
     fflush(stream);
@@ -24,10 +25,9 @@ std::string receive(FILE* stream)
 {
     char buff[256] = {0};
 
-    fread(buff, 1, 8, stream);
+    fread(buff, 1, 3, stream);
 
-    std::string buff_str(buff, 8);
-    size_t length = std::stoul(buff_str, nullptr, 2);
+    size_t length = std::stoul(std::string(buff, 3));
 
     fread(buff, 1, length, stream);
 
