@@ -7,11 +7,6 @@
 
 void send(proc::Process& p, const std::string& msg)
 {
-    if (msg.size() >= 256)
-    {
-        return;
-    }
-
     size_t msg_length = msg.size();
 
     p.writeExact(&msg_length, sizeof(size_t));
@@ -24,10 +19,14 @@ std::string receive(proc::Process& p)
     size_t msg_length = 0;
     p.readExact(&msg_length, sizeof(size_t));
 
-    char buff[256] = {0};
+    char* buff = new char[msg_length];
     p.readExact(buff, msg_length);
 
-    return std::string{buff, msg_length};
+    std::string received_msg{buff, msg_length};
+
+    delete[] buff;
+
+    return received_msg;
 }
 
 
