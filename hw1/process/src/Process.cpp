@@ -3,6 +3,7 @@
 
 #include <unistd.h>
 #include <sys/wait.h>
+#include <iostream>
 
 
 namespace proc
@@ -14,6 +15,8 @@ constexpr int EXEC_FAILED = -1;
 constexpr int WRITE_FAILED = -1;
 constexpr int READ_FAILED = -1;
 constexpr int READ_EOF = 0;
+constexpr int KILL_FAILED = -1;
+constexpr int WAIT_FAILED = -1;
 
 
 Process::Process(const std::string& path)
@@ -43,7 +46,15 @@ Process::Process(const std::string& path)
 Process::~Process()
 {
     close();
-    terminate();
+
+    try
+    {
+        terminate();
+    }
+    catch (const BadProcess& bs)
+    {
+        std::cerr << bs.what() << std::endl;
+    }
 }
 
 
@@ -125,10 +136,14 @@ void Process::close() noexcept
 }
 
 
-void Process::terminate() noexcept
+void Process::terminate()
 {
-    kill(m_pid, SIGTERM);
-    waitpid(m_pid, NULL, 0);
+    if (kill(m_pid, SIGTERM) == KILL_FAILED ||
+        waitpid(m_pid, NULL, 0) == WAIT_FAILED
+    )
+    {
+        throw BadProcess();
+    }
 }
 
 

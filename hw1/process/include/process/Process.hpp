@@ -9,6 +9,7 @@ namespace proc {
 class Process
 {
     using Pipe = int[2];
+
 public:
     explicit Process(const std::string& path);
     ~Process() noexcept;
@@ -23,7 +24,7 @@ public:
     void closeStdin();
     void close() noexcept;
 
-    void terminate() noexcept;
+    void terminate();
 
 private:
     int m_p2c_fd;
