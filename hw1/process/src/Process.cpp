@@ -122,7 +122,7 @@ void Process::terminate() noexcept
 }
 
 
-void Process::initPipes(int (&fd1)[2], int (&fd2)[2])
+void Process::initPipes(Pipe& fd1, Pipe& fd2)
 {
     if (pipe(fd1) == PIPE_FAILED)
     {
@@ -139,7 +139,7 @@ void Process::initPipes(int (&fd1)[2], int (&fd2)[2])
 }
 
 
-void Process::initAsChild(const std::string& path, int (&p2c_fd)[2], int (&c2p_fd)[2])
+void Process::initAsChild(const std::string& path, Pipe& p2c_fd, Pipe& c2p_fd)
 {
     dup2(p2c_fd[0], STDIN_FILENO);
     dup2(c2p_fd[1], STDOUT_FILENO);
@@ -156,7 +156,7 @@ void Process::initAsChild(const std::string& path, int (&p2c_fd)[2], int (&c2p_f
 }
 
 
-void Process::initAsParent(int (&p2c_fd)[2], int (&c2p_fd)[2])
+void Process::initAsParent(Pipe& p2c_fd, Pipe& c2p_fd)
 {
     m_p2c_fd = p2c_fd[1];
     m_c2p_fd = c2p_fd[0];

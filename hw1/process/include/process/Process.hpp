@@ -17,6 +17,7 @@ constexpr int READ_EOF = 0;
 
 class Process
 {
+    using Pipe = int[2];
 public:
     explicit Process(const std::string& path);
     ~Process() noexcept;
@@ -41,9 +42,9 @@ private:
     bool m_is_readable;
 
 private:
-    void initPipes(int (&fd1)[2], int (&fd2)[2]);
-    void initAsChild(const std::string& path, int (&p2c_fd)[2], int (&c2p_fd)[2]);
-    void initAsParent(int (&p2c_fd)[2], int (&c2p_fd)[2]);
+    void initPipes(Pipe& fd1, Pipe& fd2);
+    void initAsChild(const std::string& path, Pipe& p2c_fd, Pipe& c2p_fd);
+    void initAsParent(Pipe& p2c_fd, Pipe& c2p_fd);
 };
 
 } // namespace proc
