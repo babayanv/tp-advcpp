@@ -16,8 +16,7 @@ add_executable(${EX_ECHO_CHILD_NAME} ${EX_ECHO_SRCS})
 add_executable(${EX_ECHO_MAIN_NAME} ${EX_ECHO_MAIN})
 
 target_link_libraries(${EX_ECHO_MAIN_NAME}
-    PRIVATE
-        ${PROC_LIB_NAME}
+    ${PROC_LIB_NAME}
 )
 
 set_target_properties(${EX_ECHO_CHILD_NAME} ${EX_ECHO_MAIN_NAME}
