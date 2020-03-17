@@ -11,8 +11,8 @@ namespace proc
 Process::Process(const std::string& path)
     : m_is_readable(true)
 {
-    int p2c_fd[2] = {0};
-    int c2p_fd[2] = {0};
+    Pipe p2c_fd{};
+    Pipe c2p_fd{};
     initPipes(p2c_fd, c2p_fd);
 
     m_pid = fork();
