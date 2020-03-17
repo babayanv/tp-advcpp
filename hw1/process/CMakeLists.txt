@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.10)
+
 project(${PROC_LIB_NAME} CXX)
 
 set(PROC_LIB_SRCS

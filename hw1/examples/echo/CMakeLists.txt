@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.10)
+
 project(${EX_ECHO_NAME} CXX)
 
 set(EX_ECHO_SRCS
