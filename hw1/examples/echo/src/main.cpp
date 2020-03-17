@@ -31,15 +31,21 @@ std::string receive(proc::Process& p)
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
+    if (argc < 2)
+    {
+        std::cerr << "Usage: " << std::string{argv[0]} << " <path_to_executable>" << std::endl;
+        return 1;
+    }
+
     try
     {
-        proc::Process proc("./echo_child");
+        proc::Process proc(argv[1]);
 
         while (!feof(stdin))
         {
-            std::string msg;
+            std::string msg{};
             std::cin >> msg;
 
             send(proc, msg);
@@ -49,7 +55,6 @@ int main()
     catch (const proc::BadProcess& bp)
     {
         std::cerr << bp.what() << std::endl;
-
         return 1;
     }
 
