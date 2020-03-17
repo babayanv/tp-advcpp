@@ -8,6 +8,14 @@
 namespace proc
 {
 
+
+constexpr int PIPE_FAILED = -1;
+constexpr int EXEC_FAILED = -1;
+constexpr int WRITE_FAILED = -1;
+constexpr int READ_FAILED = -1;
+constexpr int READ_EOF = 0;
+
+
 Process::Process(const std::string& path)
     : m_is_readable(true)
 {
@@ -16,18 +24,18 @@ Process::Process(const std::string& path)
     initPipes(p2c_fd, c2p_fd);
 
     m_pid = fork();
-    switch (m_pid) 
+
+    if (m_pid < 0)
     {
-    case FORK_FAILED:
         throw BadProcess();
-
-    case CHILD_PROCESS:
+    }
+    if (m_pid == 0)
+    {
         initAsChild(path, p2c_fd, c2p_fd);
-        break;
-
-    default:
+    }
+    if (m_pid > 0)
+    {
         initAsParent(p2c_fd, c2p_fd);
-        return;
     }
 }
 
@@ -56,7 +64,8 @@ void Process::writeExact(const void* data, size_t len)
 {
     size_t bytes_written = 0;
 
-    while (bytes_written != len) {
+    while (bytes_written != len)
+    {
         const void* buff_begin = static_cast<const char*>(data) + bytes_written;
 
         bytes_written += write(buff_begin, len - bytes_written);
@@ -86,7 +95,8 @@ void Process::readExact(void* data, size_t len)
 {
     size_t bytes_read = 0;
 
-    while (bytes_read != len) {
+    while (bytes_read != len)
+    {
         void* buff_begin = static_cast<char*>(data) + bytes_read;
 
         bytes_read += read(buff_begin, len - bytes_read);

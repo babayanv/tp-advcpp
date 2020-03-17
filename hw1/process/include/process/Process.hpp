@@ -6,15 +6,6 @@
 
 namespace proc {
 
-constexpr int PIPE_FAILED = -1;
-constexpr int FORK_FAILED = -1;
-constexpr int CHILD_PROCESS = 0;
-constexpr int EXEC_FAILED = -1;
-constexpr int WRITE_FAILED = -1;
-constexpr int READ_FAILED = -1;
-constexpr int READ_EOF = 0;
-
-
 class Process
 {
     using Pipe = int[2];
