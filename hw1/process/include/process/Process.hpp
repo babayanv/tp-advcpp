@@ -31,22 +31,22 @@ public:
 
 
     template<class DataType,
-        class = typename std::enable_if<std::is_pod<DataType>::value>::type
+        class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
     size_t write(const DataType* data);
 
     template<class DataType,
-        class = typename std::enable_if<std::is_pod<DataType>::value>::type
+        class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
     void writeExact(const DataType* data);
 
     template<class DataType,
-        class = typename std::enable_if<std::is_pod<DataType>::value>::type
+        class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
     size_t read(DataType* data);
 
     template<class DataType,
-        class = typename std::enable_if<std::is_pod<DataType>::value>::type
+        class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
     void readExact(DataType* data);
 
