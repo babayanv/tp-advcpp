@@ -8,7 +8,7 @@ void send(proc::Process& p, const std::string& msg)
 {
     size_t msg_length = msg.size();
 
-    p.writeExact(&msg_length);
+    p.writeExact(msg_length);
     p.writeExact(msg.c_str(), msg.size());
 }
 
@@ -16,7 +16,7 @@ void send(proc::Process& p, const std::string& msg)
 std::string receive(proc::Process& p)
 {
     size_t msg_length = 0;
-    p.readExact(&msg_length);
+    p.readExact(msg_length);
 
     char* buff = new char[msg_length];
     p.readExact(buff, msg_length);

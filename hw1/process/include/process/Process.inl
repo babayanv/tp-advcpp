@@ -2,9 +2,9 @@ struct BadProcess;
 
 
 template<class DataType, class>
-size_t Process::write(const DataType* data)
+size_t Process::write(const DataType& data)
 {
-    ssize_t bytes_written = ::write(m_p2c_fd, data, sizeof(DataType));
+    ssize_t bytes_written = ::write(m_p2c_fd, &data, sizeof(DataType));
 
     if (bytes_written < 0)
     {
@@ -16,7 +16,7 @@ size_t Process::write(const DataType* data)
 
 
 template<class DataType, class>
-void Process::writeExact(const DataType* data)
+void Process::writeExact(const DataType& data)
 {
     size_t bytes_written = 0;
 
@@ -24,7 +24,7 @@ void Process::writeExact(const DataType* data)
 
     while (bytes_written != len)
     {
-        const void* buff_begin = reinterpret_cast<const char*>(data) + bytes_written;
+        const void* buff_begin = reinterpret_cast<const char*>(&data) + bytes_written;
 
         bytes_written += write(buff_begin, len - bytes_written);
     }
@@ -32,9 +32,9 @@ void Process::writeExact(const DataType* data)
 
 
 template<class DataType, class>
-size_t Process::read(DataType* data)
+size_t Process::read(DataType& data)
 {
-    ssize_t bytes_read = ::read(m_c2p_fd, data, sizeof(DataType));
+    ssize_t bytes_read = ::read(m_c2p_fd, &data, sizeof(DataType));
 
     if (bytes_read < 0)
     {
@@ -51,7 +51,7 @@ size_t Process::read(DataType* data)
 
 
 template<class DataType, class>
-void Process::readExact(DataType* data)
+void Process::readExact(DataType& data)
 {
     size_t bytes_read = 0;
 
@@ -59,7 +59,7 @@ void Process::readExact(DataType* data)
 
     while (bytes_read != len)
     {
-        void* buff_begin = reinterpret_cast<char*>(data) + bytes_read;
+        void* buff_begin = reinterpret_cast<char*>(&data) + bytes_read;
 
         bytes_read += read(buff_begin, len - bytes_read);
     }
