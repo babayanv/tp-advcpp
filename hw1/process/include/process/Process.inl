@@ -6,7 +6,7 @@ size_t Process::write(const DataType* data)
 {
     ssize_t bytes_written = ::write(m_p2c_fd, data, sizeof(DataType));
 
-    if (bytes_written == WRITE_FAILED)
+    if (bytes_written < 0)
     {
         throw BadProcess();
     }
@@ -36,12 +36,12 @@ size_t Process::read(DataType* data)
 {
     ssize_t bytes_read = ::read(m_c2p_fd, data, sizeof(DataType));
 
-    if (bytes_read == READ_FAILED)
+    if (bytes_read < 0)
     {
         throw BadProcess();
     }
 
-    if (bytes_read == READ_EOF)
+    if (bytes_read == 0)
     {
         m_is_readable = false;
     }

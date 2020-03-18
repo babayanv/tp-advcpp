@@ -52,7 +52,7 @@ size_t Process::write(const void* data, size_t len)
 {
     ssize_t bytes_written = ::write(m_p2c_fd, data, len);
 
-    if (bytes_written == WRITE_FAILED)
+    if (bytes_written < 0)
     {
         throw BadProcess();
     }
@@ -78,12 +78,12 @@ size_t Process::read(void* data, size_t len)
 {
     ssize_t bytes_read = ::read(m_c2p_fd, data, len);
 
-    if (bytes_read == READ_FAILED)
+    if (bytes_read < 0)
     {
         throw BadProcess();
     }
 
-    if (bytes_read == READ_EOF)
+    if (bytes_read == 0)
     {
         m_is_readable = false;
     }
@@ -128,9 +128,8 @@ void Process::close() noexcept
 
 void Process::terminate()
 {
-    if (kill(m_pid, SIGTERM) == KILL_FAILED ||
-        waitpid(m_pid, NULL, 0) == WAIT_FAILED
-    )
+    if (kill(m_pid, SIGTERM) < 0 ||
+        waitpid(m_pid, NULL, 0) < 0)
     {
         throw BadProcess();
     }
@@ -139,12 +138,12 @@ void Process::terminate()
 
 void Process::initPipes(Pipe& fd1, Pipe& fd2)
 {
-    if (pipe(fd1) == PIPE_FAILED)
+    if (pipe(fd1) < 0)
     {
         throw BadProcess();
     }
 
-    if (pipe(fd2) == PIPE_FAILED)
+    if (pipe(fd2) < 0)
     {
         ::close(fd1[0]);
         ::close(fd1[1]);
@@ -164,7 +163,7 @@ void Process::initAsChild(const std::string& path, Pipe& p2c_fd, Pipe& c2p_fd)
     ::close(c2p_fd[0]);
     ::close(c2p_fd[1]);
 
-    if (execl(path.c_str(), path.c_str(), nullptr) == EXEC_FAILED)
+    if (execl(path.c_str(), path.c_str(), nullptr) < 0)
     {
         throw BadProcess();
     }
