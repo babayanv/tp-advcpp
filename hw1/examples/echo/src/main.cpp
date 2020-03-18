@@ -2,7 +2,6 @@
 #include "process/Exception.hpp"
 
 #include <iostream>
-#include <bitset>
 
 
 void send(proc::Process& p, const std::string& msg)
