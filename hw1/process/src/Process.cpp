@@ -10,15 +10,6 @@ namespace proc
 {
 
 
-constexpr int PIPE_FAILED = -1;
-constexpr int EXEC_FAILED = -1;
-constexpr int WRITE_FAILED = -1;
-constexpr int READ_FAILED = -1;
-constexpr int READ_EOF = 0;
-constexpr int KILL_FAILED = -1;
-constexpr int WAIT_FAILED = -1;
-
-
 Process::Process(const std::string& path)
     : m_is_readable(true)
 {
