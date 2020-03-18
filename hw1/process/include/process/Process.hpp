@@ -2,6 +2,8 @@
 #define PROC_PROCESS_HPP
 
 #include <string>
+#include <unistd.h>
+
 
 
 namespace proc {
@@ -36,6 +38,28 @@ public:
 
     void terminate();
 
+
+    template<class DataType,
+        class = typename std::enable_if<std::is_pod<DataType>::value>::type
+    >
+    size_t write(const DataType* data);
+
+    template<class DataType,
+        class = typename std::enable_if<std::is_pod<DataType>::value>::type
+    >
+    void writeExact(const DataType* data);
+
+    template<class DataType,
+        class = typename std::enable_if<std::is_pod<DataType>::value>::type
+    >
+    size_t read(DataType* data);
+
+    template<class DataType,
+        class = typename std::enable_if<std::is_pod<DataType>::value>::type
+    >
+    void readExact(DataType* data);
+
+
 private:
     int m_p2c_fd;
     int m_c2p_fd;
@@ -48,6 +72,9 @@ private:
     void initAsChild(const std::string& path, Pipe& p2c_fd, Pipe& c2p_fd);
     void initAsParent(Pipe& p2c_fd, Pipe& c2p_fd);
 };
+
+
+#include "Process.inl"
 
 } // namespace proc
 

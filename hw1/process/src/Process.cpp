@@ -1,7 +1,6 @@
 #include "process/Process.hpp"
 #include "process/Exception.hpp"
 
-#include <unistd.h>
 #include <sys/wait.h>
 #include <iostream>
 
