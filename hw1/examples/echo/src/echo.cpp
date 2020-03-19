@@ -20,7 +20,7 @@ std::string receive(FILE* stream)
 
     std::string received_msg(msg_length, '\0');
 
-    fread(received_msg.data(), 1, msg_length, stream);
+    fread(received_msg.data(), 1, received_msg.size(), stream);
 
     return received_msg;
 }

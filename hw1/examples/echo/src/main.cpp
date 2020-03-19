@@ -20,7 +20,7 @@ std::string receive(proc::Process& p)
 
     std::string received_msg(msg_length, '\0');
 
-    p.readExact(received_msg.data(), msg_length);
+    p.readExact(received_msg.data(), received_msg.size());
 
     return received_msg;
 }
