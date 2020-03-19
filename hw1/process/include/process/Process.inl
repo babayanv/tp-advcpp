@@ -2,22 +2,14 @@ struct BadProcess;
 
 
 template<class DataType, class>
-size_t Process::write(const DataType& data)
+void Process::write(const DataType& data)
 {
-    static constexpr size_t data_size = sizeof(DataType);
-
-    writeExact(&data, data_size);
-
-    return data_size;
+    writeExact(&data, sizeof(DataType));
 }
 
 
 template<class DataType, class>
-size_t Process::read(DataType& data)
+void Process::read(DataType& data)
 {
-    static constexpr size_t data_size = sizeof(DataType);
-
-    readExact(&data, data_size);
-
-    return data_size;
+    readExact(&data, sizeof(DataType));
 }

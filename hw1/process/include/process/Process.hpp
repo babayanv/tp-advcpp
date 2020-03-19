@@ -33,12 +33,12 @@ public:
     template<class DataType,
         class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
-    size_t write(const DataType& data);
+    void write(const DataType& data);
 
     template<class DataType,
         class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
-    size_t read(DataType& data);
+    void read(DataType& data);
 
 private:
     int m_p2c_fd;
