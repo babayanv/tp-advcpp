@@ -33,7 +33,7 @@ public:
     template<class DataType,
         class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
-    void write(const DataType& data)
+    inline void write(const DataType& data)
     {
         writeExact(&data, sizeof(DataType));
     }
@@ -41,7 +41,7 @@ public:
     template<class DataType,
         class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
-    void read(DataType& data)
+    inline void read(DataType& data)
     {
         readExact(&data, sizeof(DataType));
     }
