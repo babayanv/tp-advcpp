@@ -18,12 +18,9 @@ std::string receive(FILE* stream)
     size_t msg_length = 0;
     fread(&msg_length, sizeof(size_t), 1, stream);
 
-    char* buff = new char[msg_length];
-    fread(buff, 1, msg_length, stream);
+    std::string received_msg(msg_length, '\0');
 
-    std::string received_msg{buff, msg_length};
-
-    delete[] buff;
+    fread(received_msg.data(), 1, msg_length, stream);
 
     return received_msg;
 }

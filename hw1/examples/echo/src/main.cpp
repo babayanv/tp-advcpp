@@ -18,12 +18,9 @@ std::string receive(proc::Process& p)
     size_t msg_length = 0;
     p.read(msg_length);
 
-    char* buff = new char[msg_length];
-    p.readExact(buff, msg_length);
+    std::string received_msg(msg_length, '\0');
 
-    std::string received_msg{buff, msg_length};
-
-    delete[] buff;
+    p.readExact(received_msg.data(), msg_length);
 
     return received_msg;
 }
