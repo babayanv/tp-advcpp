@@ -17,7 +17,7 @@ size_t Process::read(DataType& data)
 {
     static constexpr size_t data_size = sizeof(DataType);
 
-    readExact(&data, sizeof(DataType));
+    readExact(&data, data_size);
 
     return data_size;
 }
