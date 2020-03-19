@@ -33,12 +33,19 @@ public:
     template<class DataType,
         class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
-    void write(const DataType& data);
+    void write(const DataType& data)
+    {
+        writeExact(&data, sizeof(DataType));
+    }
 
     template<class DataType,
         class = typename std::enable_if_t<std::is_pod_v<DataType>>
     >
-    void read(DataType& data);
+    void read(DataType& data)
+    {
+        readExact(&data, sizeof(DataType));
+    }
+
 
 private:
     int m_p2c_fd;
@@ -52,9 +59,6 @@ private:
     void initAsChild(const std::string& path, Pipe& p2c_fd, Pipe& c2p_fd);
     void initAsParent(Pipe& p2c_fd, Pipe& c2p_fd);
 };
-
-
-#include "Process.inl"
 
 } // namespace proc
 
