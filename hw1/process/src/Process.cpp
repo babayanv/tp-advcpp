@@ -3,6 +3,7 @@
 
 #include <sys/wait.h>
 #include <iostream>
+#include <utility>
 
 
 namespace proc
@@ -33,6 +34,16 @@ Process::Process(const std::string& path)
 }
 
 
+
+Process::Process(Process&& other) noexcept
+    : m_p2c_fd{std::exchange(other.m_p2c_fd, -1)}
+    , m_c2p_fd{std::exchange(other.m_c2p_fd, -1)}
+    , m_pid{std::exchange(other.m_pid, -1)}
+    , m_is_readable{std::exchange(other.m_is_readable, false)}
+{
+}
+
+
 Process::~Process() noexcept
 {
     close();
@@ -45,6 +56,17 @@ Process::~Process() noexcept
     {
         std::cerr << bs.what() << std::endl;
     }
+}
+
+
+Process& Process::operator=(Process&& other) noexcept
+{
+    m_p2c_fd = std::exchange(other.m_p2c_fd, -1);
+    m_c2p_fd = std::exchange(other.m_c2p_fd, -1);
+    m_pid = std::exchange(other.m_pid, -1);
+    m_is_readable = std::exchange(other.m_is_readable, false);
+
+    return *this;
 }
 
 
