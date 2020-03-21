@@ -15,7 +15,11 @@ class Process
 
 public:
     explicit Process(const std::string& path);
+    Process(const Process& other) = delete;
+
     ~Process() noexcept;
+
+    Process& operator=(const Process& other) = delete;
 
     size_t write(const void* data, size_t len);
     void writeExact(const void* data, size_t len);
