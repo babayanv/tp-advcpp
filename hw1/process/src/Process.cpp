@@ -33,7 +33,7 @@ Process::Process(const std::string& path)
 }
 
 
-Process::~Process()
+Process::~Process() noexcept
 {
     close();
 
