@@ -14,14 +14,32 @@ class BaseLogger
 public:
     virtual ~BaseLogger() = default;
 
-    void debug(const std::string& log_msg) noexcept;
-    void info(const std::string& log_msg) noexcept;
-    void warn(const std::string& log_msg) noexcept;
-    void error(const std::string& log_msg) noexcept;
+    inline void debug(const std::string& log_msg) noexcept
+    {
+        log(log_msg, Level::DEBUG);
+    }
+    inline void info(const std::string& log_msg) noexcept
+    {
+        log(log_msg, Level::INFO);
+    }
+    inline void warn(const std::string& log_msg) noexcept
+    {
+        log(log_msg, Level::WARNING);
+    }
+    inline void error(const std::string& log_msg) noexcept
+    {
+        log(log_msg, Level::ERROR);
+    }
 
-    void set_level(Level lv) noexcept;
+    inline void set_level(Level lv) noexcept
+    {
+        m_level = lv;
+    }
 
-    Level level() noexcept;
+    inline Level level() noexcept
+    {
+        return m_level;
+    }
 
     virtual void flush() noexcept = 0;
 

@@ -38,14 +38,27 @@ private:
 };
 
 
-void init(BaseLoggerPtr logger);
+inline void init(BaseLoggerPtr logger)
+{
+    Logger::get_instance().set_global_logger(logger);
+}
 
-void debug(const std::string& log_msg);
-void info(const std::string& log_msg);
-void warn(const std::string& log_msg);
-void error(const std::string& log_msg);
-
-void flush();
+inline void debug(const std::string& log_msg)
+{
+    Logger::get_instance().get_global_logger()->debug(log_msg);
+}
+inline void info(const std::string& log_msg)
+{
+    Logger::get_instance().get_global_logger()->info(log_msg);
+}
+inline void warn(const std::string& log_msg)
+{
+    Logger::get_instance().get_global_logger()->warn(log_msg);
+}
+inline void error(const std::string& log_msg)
+{
+    Logger::get_instance().get_global_logger()->error(log_msg);
+}
 
 } // namespace log
 
