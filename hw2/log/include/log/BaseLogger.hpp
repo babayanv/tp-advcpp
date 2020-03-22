@@ -12,6 +12,8 @@ namespace log
 class BaseLogger
 {
 public:
+    virtual ~BaseLogger() = default;
+
     void debug(const std::string& log_msg) noexcept;
     void info(const std::string& log_msg) noexcept;
     void warn(const std::string& log_msg) noexcept;
