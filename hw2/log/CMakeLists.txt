@@ -3,7 +3,11 @@ cmake_minimum_required(VERSION 3.10)
 project(${LOG_LIB_NAME} CXX)
 
 set(LIB_LIB_SRCS
-    "${PROJECT_SOURCE_DIR}/src/Logger.cpp.cpp"
+    "${PROJECT_SOURCE_DIR}/src/BaseLogger.cpp"
+    "${PROJECT_SOURCE_DIR}/src/FileLogger.cpp"
+    "${PROJECT_SOURCE_DIR}/src/StdoutLogger.cpp"
+    "${PROJECT_SOURCE_DIR}/src/StderrLogger.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Logger.cpp"
 )
 
 add_library(${PROJECT_NAME} STATIC ${LIB_LIB_SRCS})
