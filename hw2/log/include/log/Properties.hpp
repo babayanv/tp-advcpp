@@ -15,6 +15,18 @@ enum class Level
 };
 
 
+enum class Mod
+{
+    NONE   = 0,
+
+    COLOR  = 1,
+    WEIGHT = 1 << 1,
+    TIME   = 1 << 2,
+
+    ALL    = ~0,
+};
+
+
 namespace color
 {
     // redundant const specifier is to get rid of compiler warning since ISO C++ forbids converting a string constant to ‘char*’
@@ -31,7 +43,6 @@ namespace font
 {
     constexpr const char* BOLD = "\033[1m";
     constexpr const char* BOLD_OFF = "\033[22m";
-
 } // namespace font
 
 } // namespace log
