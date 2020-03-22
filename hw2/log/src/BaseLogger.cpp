@@ -1,5 +1,7 @@
 #include "log/BaseLogger.hpp"
 
+#include <iomanip>
+
 
 namespace log
 {
@@ -7,8 +9,12 @@ namespace log
 
 void BaseLogger::debug(const std::string& log_msg) noexcept
 {
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+
     std::ostringstream os;
     os << color::CYAN <<
+        '[' << std::put_time(&tm, "%c") << "] " <<
         font::BOLD << "DEBUG: " << font::BOLD_OFF <<
         log_msg << color::DEFAULT << std::endl;
 
@@ -18,8 +24,12 @@ void BaseLogger::debug(const std::string& log_msg) noexcept
 
 void BaseLogger::info(const std::string& log_msg) noexcept
 {
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+
     std::ostringstream os;
     os << color::WHITE <<
+        '[' << std::put_time(&tm, "%c") << "] " <<
         font::BOLD << "INFO: " << font::BOLD_OFF <<
         log_msg << color::DEFAULT << std::endl;
 
@@ -29,8 +39,12 @@ void BaseLogger::info(const std::string& log_msg) noexcept
 
 void BaseLogger::warn(const std::string& log_msg) noexcept
 {
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+
     std::ostringstream os;
     os << color::YELLOW <<
+        '[' << std::put_time(&tm, "%c") << "] " <<
         font::BOLD << "WARN: " << font::BOLD_OFF <<
         log_msg << color::DEFAULT << std::endl;
 
@@ -40,8 +54,12 @@ void BaseLogger::warn(const std::string& log_msg) noexcept
 
 void BaseLogger::error(const std::string& log_msg) noexcept
 {
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+
     std::ostringstream os;
     os << color::RED <<
+        '[' << std::put_time(&tm, "%c") << "] " <<
         font::BOLD << "ERR: " << font::BOLD_OFF <<
         log_msg << color::DEFAULT << std::endl;
 
