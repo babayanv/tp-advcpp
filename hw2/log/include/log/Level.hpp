@@ -26,6 +26,7 @@ namespace color
 
 } // namespace color
 
+
 namespace font
 {
     constexpr const char* BOLD = "\033[1m";
