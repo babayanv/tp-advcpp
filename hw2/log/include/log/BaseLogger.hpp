@@ -1,7 +1,7 @@
 #ifndef BASE_LOGGER_HPP
 #define BASE_LOGGER_HPP
 
-#include "log/Level.hpp"
+#include "log/Properties.hpp"
 
 #include <sstream>
 
