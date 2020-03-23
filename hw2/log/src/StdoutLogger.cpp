@@ -1,16 +1,13 @@
-#include "log/StdoutLogger.hpp"
+#include "log/loggers/StdoutLogger.hpp"
 
 
 namespace log
 {
 
 
-std::shared_ptr<StdoutLogger> create_stdout_logger(Level lv)
+StdoutLogger::StdoutLogger(Level lv, Mod mod)
+    : BaseLogger(lv, mod)
 {
-    auto logger = std::make_shared<StdoutLogger>();
-    logger->set_level(lv);
-
-    return logger;
 }
 
 } // namespace log

@@ -1,7 +1,7 @@
 #ifndef STDOUT_LOGGER_HPP
 #define STDOUT_LOGGER_HPP
 
-#include "log/BaseLogger.hpp"
+#include "log/loggers/BaseLogger.hpp"
 
 #include <iostream>
 #include <memory>
@@ -13,7 +13,7 @@ namespace log
 class StdoutLogger final : public BaseLogger
 {
 public:
-    StdoutLogger() = default;
+    explicit StdoutLogger(Level lv, Mod mod);
 
     StdoutLogger(const StdoutLogger& other) = delete;
     StdoutLogger& operator=(const StdoutLogger& other) = delete;
@@ -29,13 +29,16 @@ public:
 private:
     virtual inline void log_impl(const std::string& log_msg) noexcept override
     {
-        std::cout << log_msg;
+        std::cout << log_msg << std::endl;
     }
 
 };
 
 
-std::shared_ptr<StdoutLogger> create_stdout_logger(Level lv);
+inline std::shared_ptr<StdoutLogger> create_stdout_logger(Level lv, Mod mod = Mod::ALL) noexcept
+{
+    return std::make_shared<StdoutLogger>(lv, mod);
+}
 
 } // namespace log
 

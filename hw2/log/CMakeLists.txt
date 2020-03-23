@@ -8,6 +8,7 @@ set(LIB_LIB_SRCS
     "${PROJECT_SOURCE_DIR}/src/StdoutLogger.cpp"
     "${PROJECT_SOURCE_DIR}/src/StderrLogger.cpp"
     "${PROJECT_SOURCE_DIR}/src/Logger.cpp"
+    "${PROJECT_SOURCE_DIR}/src/LogFormatter.cpp"
 )
 
 add_library(${PROJECT_NAME} STATIC ${LIB_LIB_SRCS})

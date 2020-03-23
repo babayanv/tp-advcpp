@@ -1,7 +1,7 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
-#include "log/BaseLogger.hpp"
+#include "log/loggers/BaseLogger.hpp"
 
 #include <memory>
 

@@ -2,6 +2,7 @@
 #define BASE_LOGGER_HPP
 
 #include "log/Properties.hpp"
+#include "log/format/LogFormatter.hpp"
 
 #include <sstream>
 
@@ -12,6 +13,7 @@ namespace log
 class BaseLogger
 {
 public:
+    explicit BaseLogger(Level lv, Mod mod) noexcept;
     virtual ~BaseLogger() = default;
 
     inline void debug(const std::string& log_msg) noexcept
@@ -45,6 +47,7 @@ public:
 
 private:
     Level m_level;
+    LogFormatter m_formatter;
 
 private:
     void log(const std::string& log_msg, Level lv) noexcept;

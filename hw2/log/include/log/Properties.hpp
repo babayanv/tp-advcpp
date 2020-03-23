@@ -11,11 +11,12 @@ enum class Level
     INFO,
     WARNING,
     ERROR,
-    ALL,
+
+    ALL = ERROR,
 };
 
 
-enum class Mod
+enum Mod
 {
     NONE   = 0,
 
@@ -30,7 +31,7 @@ enum class Mod
 namespace color
 {
     // redundant const specifier is to get rid of compiler warning since ISO C++ forbids converting a string constant to ‘char*’
-    constexpr const char* DEFAULT = "\033[0m";
+    constexpr const char* RESET = "\033[0m";
     constexpr const char* CYAN = "\033[36m";
     constexpr const char* WHITE = "\033[37m";
     constexpr const char* YELLOW = "\033[33m";
