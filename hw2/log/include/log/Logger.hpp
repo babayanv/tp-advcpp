@@ -46,18 +46,22 @@ inline void init(BaseLoggerPtr logger)
 inline void debug(const std::string& log_msg)
 {
     Logger::get_instance().get_global_logger()->debug(log_msg);
+    Logger::get_instance().get_global_logger()->flush();
 }
 inline void info(const std::string& log_msg)
 {
     Logger::get_instance().get_global_logger()->info(log_msg);
+    Logger::get_instance().get_global_logger()->flush();
 }
 inline void warn(const std::string& log_msg)
 {
     Logger::get_instance().get_global_logger()->warn(log_msg);
+    Logger::get_instance().get_global_logger()->flush();
 }
 inline void error(const std::string& log_msg)
 {
     Logger::get_instance().get_global_logger()->error(log_msg);
+    Logger::get_instance().get_global_logger()->flush();
 }
 
 } // namespace log
