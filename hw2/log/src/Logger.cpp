@@ -20,7 +20,7 @@ BaseLoggerPtr Logger::get_global_logger()
 
 void Logger::set_global_logger(BaseLoggerPtr logger)
 {
-    m_glob_logger = logger;
+    m_glob_logger = std::move(logger);
 }
 
 
