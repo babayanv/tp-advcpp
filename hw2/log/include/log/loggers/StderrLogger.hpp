@@ -21,24 +21,15 @@ public:
     StderrLogger(StderrLogger&& other) = delete;
     StderrLogger& operator=(StderrLogger&& other) = delete;
 
-    virtual inline void flush() noexcept override
-    {
-        std::cerr.flush();
-    }
+    virtual void flush() noexcept override;
 
 private:
-    virtual inline void log_impl(const std::string& log_msg) noexcept override
-    {
-        std::cerr << log_msg << std::endl;
-    }
+    virtual void log_impl(const std::string& log_msg) noexcept override;
 
 };
 
 
-inline std::shared_ptr<StderrLogger> create_stderr_logger(Level lv, Mod mod = Mod::ALL)
-{
-    return std::make_shared<StderrLogger>(lv, mod);
-}
+std::shared_ptr<StderrLogger> create_stderr_logger(Level lv, Mod mod = Mod::ALL);
 
 
 } // namespace log

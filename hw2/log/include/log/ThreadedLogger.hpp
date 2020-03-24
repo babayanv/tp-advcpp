@@ -26,12 +26,6 @@ public:
 
     void enqueue_log(const std::string& msg, CallbackType cb) noexcept;
 
-    inline void log(const QueueDataType& data)
-    {
-        auto [ str, callback ] = data;
-        callback(str);
-    }
-
     void stop();
 
 private:
@@ -50,24 +44,13 @@ private:
     ThreadedLogger& operator=(const ThreadedLogger& other) = delete;
 
     void work();
+    void log(const QueueDataType& data);
 };
 
-inline void debug_tl(const std::string& log_msg)
-{
-    ThreadedLogger::get_instance().enqueue_log(log_msg, debug);
-}
-inline void info_tl(const std::string& log_msg)
-{
-    ThreadedLogger::get_instance().enqueue_log(log_msg, info);
-}
-inline void warn_tl(const std::string& log_msg)
-{
-    ThreadedLogger::get_instance().enqueue_log(log_msg, warn);
-}
-inline void error_tl(const std::string& log_msg)
-{
-    ThreadedLogger::get_instance().enqueue_log(log_msg, error);
-}
+void debug_tl(const std::string& log_msg);
+void info_tl(const std::string& log_msg);
+void warn_tl(const std::string& log_msg);
+void error_tl(const std::string& log_msg);
 
 } // namespace log
 

@@ -17,15 +17,8 @@ class Logger
 public:
     static Logger& get_instance();
 
-    inline BaseLoggerPtr get_global_logger()
-    {
-        return m_glob_logger;
-    }
-
-    inline void set_global_logger(BaseLoggerPtr logger)
-    {
-        m_glob_logger = logger;
-    }
+    BaseLoggerPtr get_global_logger();
+    void set_global_logger(BaseLoggerPtr logger);
 
 private:
     BaseLoggerPtr m_glob_logger;
@@ -38,31 +31,12 @@ private:
 };
 
 
-inline void init(BaseLoggerPtr logger)
-{
-    Logger::get_instance().set_global_logger(logger);
-}
+void init(BaseLoggerPtr logger);
 
-inline void debug(const std::string& log_msg)
-{
-    Logger::get_instance().get_global_logger()->debug(log_msg);
-    Logger::get_instance().get_global_logger()->flush();
-}
-inline void info(const std::string& log_msg)
-{
-    Logger::get_instance().get_global_logger()->info(log_msg);
-    Logger::get_instance().get_global_logger()->flush();
-}
-inline void warn(const std::string& log_msg)
-{
-    Logger::get_instance().get_global_logger()->warn(log_msg);
-    Logger::get_instance().get_global_logger()->flush();
-}
-inline void error(const std::string& log_msg)
-{
-    Logger::get_instance().get_global_logger()->error(log_msg);
-    Logger::get_instance().get_global_logger()->flush();
-}
+void debug(const std::string& log_msg);
+void info(const std::string& log_msg);
+void warn(const std::string& log_msg);
+void error(const std::string& log_msg);
 
 } // namespace log
 

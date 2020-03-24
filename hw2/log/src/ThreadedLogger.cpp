@@ -74,4 +74,35 @@ void ThreadedLogger::work()
     }
 }
 
+
+inline void ThreadedLogger::log(const QueueDataType& data)
+{
+    auto [ str, callback ] = data;
+    callback(str);
+}
+
+//
+void debug_tl(const std::string& log_msg)
+{
+    ThreadedLogger::get_instance().enqueue_log(log_msg, debug);
+}
+
+//
+void info_tl(const std::string& log_msg)
+{
+    ThreadedLogger::get_instance().enqueue_log(log_msg, info);
+}
+
+//
+void warn_tl(const std::string& log_msg)
+{
+    ThreadedLogger::get_instance().enqueue_log(log_msg, warn);
+}
+
+//
+void error_tl(const std::string& log_msg)
+{
+    ThreadedLogger::get_instance().enqueue_log(log_msg, error);
+}
+
 } // namespcae log

@@ -13,23 +13,12 @@ namespace log
 class BaseFormatter
 {
 public:
-    BaseFormatter(Mod mod) : m_mod(mod) {}
+    BaseFormatter(Mod mod);
     virtual ~BaseFormatter() = default;
 
-    inline void set_mod(Mod mod) noexcept
-    {
-        m_mod = mod;
-    }
-
-    inline Mod mod() noexcept
-    {
-        return m_mod;
-    }
-
-    inline bool is_mod(Mod mod) noexcept
-    {
-        return m_mod & mod;
-    }
+    void set_mod(Mod mod) noexcept;
+    Mod mod() noexcept;
+    bool is_mod(Mod mod) noexcept;
 
     virtual std::string fmt(const std::string& msg, Level lv) noexcept = 0;
 

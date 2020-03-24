@@ -7,7 +7,10 @@ set(LIB_LIB_SRCS
     "${PROJECT_SOURCE_DIR}/src/loggers/FileLogger.cpp"
     "${PROJECT_SOURCE_DIR}/src/loggers/StdoutLogger.cpp"
     "${PROJECT_SOURCE_DIR}/src/loggers/StderrLogger.cpp"
+
+    "${PROJECT_SOURCE_DIR}/src/format/BaseFormatter.cpp"
     "${PROJECT_SOURCE_DIR}/src/format/LogFormatter.cpp"
+
     "${PROJECT_SOURCE_DIR}/src/Logger.cpp"
     "${PROJECT_SOURCE_DIR}/src/ThreadedLogger.cpp"
 )
