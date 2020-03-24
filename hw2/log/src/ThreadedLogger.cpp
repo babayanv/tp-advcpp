@@ -16,8 +16,7 @@ void ThreadedLogger::enqueue_log(const std::string& msg, CallbackType cb) noexce
 {
     std::unique_lock<std::mutex> lock(m_mut);
 
-    QueueDataType data{msg, cb};
-    m_queue.enqueue(std::make_shared<QueueDataType>(data));
+    m_queue.enqueue(msg, cb);
 
     m_notified = true;
     m_cv.notify_one();
@@ -62,7 +61,7 @@ void ThreadedLogger::work()
 
         while (!m_queue.empty())
         {
-            log(*m_queue.dequeue()); 
+            log(m_queue.dequeue()); 
         }
 
         m_notified = false;
@@ -70,7 +69,7 @@ void ThreadedLogger::work()
 
     while (!m_queue.empty())
     {
-        log(*m_queue.dequeue()); 
+        log(m_queue.dequeue()); 
     }
 }
 

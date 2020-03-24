@@ -15,33 +15,20 @@ namespace utils
 template <class DataType>
 class SafeQueue
 {
-    using DataPtr = std::shared_ptr<DataType>;
-
 public:
     SafeQueue() = default;
     ~SafeQueue() = default;
 
-    bool enqueue(DataPtr elem)
+    template <class ... Args>
+    void enqueue(Args&&... args)
     {
-        if (elem == nullptr)
-        {
-            return false;
-        }
-
         std::lock_guard<std::mutex> lock(m_mut);
-        m_queue.push(elem);
-
-        return true;
+        m_queue.emplace(std::forward<Args>(args)...);
     }
 
-    DataPtr dequeue()
+    DataType dequeue()
     {
-        if (m_queue.empty())
-        {
-            return nullptr;
-        }
-
-        DataPtr elem = m_queue.front();
+        DataType& elem = m_queue.front();
 
         std::lock_guard<std::mutex> lock(m_mut);
         m_queue.pop();
@@ -49,13 +36,13 @@ public:
         return elem;
     }
 
-    inline bool empty()
+    bool empty()
     {
         return m_queue.empty();
     }
 
 private:
-    std::queue<DataPtr> m_queue;
+    std::queue<DataType> m_queue;
     std::mutex m_mut;
 
 };
