@@ -77,7 +77,7 @@ void ThreadedLogger::work()
 
 inline void ThreadedLogger::log(const QueueDataType& data)
 {
-    auto [ str, callback ] = data;
+    auto& [ str, callback ] = data;
     callback(str);
 }
 
