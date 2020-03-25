@@ -28,7 +28,7 @@ public:
 
     DataType dequeue()
     {
-        DataType& elem = m_queue.front();
+        auto elem = std::move(m_queue.front());
 
         std::lock_guard lock(m_mut);
         m_queue.pop();
