@@ -13,6 +13,7 @@ set(LIB_LIB_SRCS
 
     "${PROJECT_SOURCE_DIR}/src/Logger.cpp"
     "${PROJECT_SOURCE_DIR}/src/ThreadedLogger.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Exception.cpp"
 )
 
 find_package (Threads)
