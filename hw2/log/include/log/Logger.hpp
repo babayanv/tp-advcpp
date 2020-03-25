@@ -17,8 +17,8 @@ class Logger
 public:
     static Logger& get_instance();
 
-    BaseLoggerPtr get_global_logger();
-    void set_global_logger(BaseLoggerPtr logger);
+    BaseLoggerPtr get_global_logger() const noexcept;
+    void set_global_logger(BaseLoggerPtr logger) noexcept;
 
 private:
     BaseLoggerPtr m_glob_logger;

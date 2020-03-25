@@ -12,13 +12,13 @@ Logger& Logger::get_instance()
 }
 
 
-BaseLoggerPtr Logger::get_global_logger()
+BaseLoggerPtr Logger::get_global_logger() const noexcept
 {
     return m_glob_logger;
 }
 
 
-void Logger::set_global_logger(BaseLoggerPtr logger)
+void Logger::set_global_logger(BaseLoggerPtr logger) noexcept
 {
     m_glob_logger = std::move(logger);
 }
@@ -32,29 +32,37 @@ void init(BaseLoggerPtr logger)
 
 void debug(const std::string& log_msg)
 {
-    Logger::get_instance().get_global_logger()->debug(log_msg);
-    Logger::get_instance().get_global_logger()->flush();
+    const auto& logger = Logger::get_instance().get_global_logger();
+
+    logger->debug(log_msg);
+    logger->flush();
 }
 
 
 void info(const std::string& log_msg)
 {
-    Logger::get_instance().get_global_logger()->info(log_msg);
-    Logger::get_instance().get_global_logger()->flush();
+    const auto& logger = Logger::get_instance().get_global_logger();
+
+    logger->info(log_msg);
+    logger->flush();
 }
 
 
 void warn(const std::string& log_msg)
 {
-    Logger::get_instance().get_global_logger()->warn(log_msg);
-    Logger::get_instance().get_global_logger()->flush();
+    const auto& logger = Logger::get_instance().get_global_logger();
+
+    logger->warn(log_msg);
+    logger->flush();
 }
 
 
 void error(const std::string& log_msg)
 {
-    Logger::get_instance().get_global_logger()->error(log_msg);
-    Logger::get_instance().get_global_logger()->flush();
+    const auto& logger = Logger::get_instance().get_global_logger();
+
+    logger->error(log_msg);
+    logger->flush();
 }
 
 } // namespace log
