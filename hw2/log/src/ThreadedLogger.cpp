@@ -27,6 +27,11 @@ ThreadedLogger& ThreadedLogger::get_instance()
 
 void ThreadedLogger::enqueue_log(const std::string& msg, CallbackType cb) noexcept
 {
+    if (m_done)
+    {
+        return;
+    }
+
     m_queue.enqueue(msg, cb);
 }
 
