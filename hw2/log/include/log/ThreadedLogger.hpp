@@ -23,9 +23,9 @@ class ThreadedLogger
 public:
     static ThreadedLogger& get_instance();
 
-    void enqueue_log(const std::string& msg, CallbackType cb) noexcept;
+    void enqueue_log(const std::string& msg, CallbackType cb);
 
-    void stop();
+    void stop() noexcept;
 
 private:
     utils::SafeQueue<QueueDataType> m_queue;

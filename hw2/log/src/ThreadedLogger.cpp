@@ -26,7 +26,7 @@ ThreadedLogger& ThreadedLogger::get_instance()
 }
 
 
-void ThreadedLogger::enqueue_log(const std::string& msg, CallbackType cb) noexcept
+void ThreadedLogger::enqueue_log(const std::string& msg, CallbackType cb)
 {
     if (m_done)
     {
@@ -37,7 +37,7 @@ void ThreadedLogger::enqueue_log(const std::string& msg, CallbackType cb) noexce
 }
 
 
-void ThreadedLogger::stop()
+void ThreadedLogger::stop() noexcept
 {
     m_done = true;
 
