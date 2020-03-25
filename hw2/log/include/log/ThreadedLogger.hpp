@@ -6,7 +6,6 @@
 
 #include <string>
 #include <thread>
-#include <condition_variable>
 #include <functional>
 
 
@@ -29,11 +28,9 @@ public:
     void stop();
 
 private:
-    std::condition_variable m_cv;
     utils::SafeQueue<QueueDataType> m_queue;
-    bool m_done;
-    bool m_notified;
 
+    bool m_done;
     std::thread m_worker;
 
 private:
