@@ -14,7 +14,7 @@ ThreadedLogger& ThreadedLogger::get_instance()
 
 void ThreadedLogger::enqueue_log(const std::string& msg, CallbackType cb) noexcept
 {
-    std::unique_lock<std::mutex> lock(m_mut);
+    std::unique_lock lock(m_mut);
 
     m_queue.enqueue(msg, cb);
 
@@ -50,7 +50,7 @@ ThreadedLogger::~ThreadedLogger() noexcept
 
 void ThreadedLogger::work()
 {
-    std::unique_lock<std::mutex> lock(m_mut);
+    std::unique_lock lock(m_mut);
 
     while (!m_done)
     {

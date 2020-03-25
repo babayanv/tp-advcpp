@@ -22,7 +22,7 @@ public:
     template <class ... Args>
     void enqueue(Args&&... args)
     {
-        std::lock_guard<std::mutex> lock(m_mut);
+        std::lock_guard lock(m_mut);
         m_queue.emplace(std::forward<Args>(args)...);
     }
 
@@ -30,7 +30,7 @@ public:
     {
         DataType& elem = m_queue.front();
 
-        std::lock_guard<std::mutex> lock(m_mut);
+        std::lock_guard lock(m_mut);
         m_queue.pop();
 
         return elem;
