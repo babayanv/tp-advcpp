@@ -21,10 +21,10 @@ public:
     StderrLogger(StderrLogger&& other) = delete;
     StderrLogger& operator=(StderrLogger&& other) = delete;
 
-    virtual void flush() noexcept override;
+    void flush() noexcept override;
 
 private:
-    virtual void log_impl(const std::string& log_msg) noexcept override;
+    void log_impl(const std::string& log_msg) noexcept override;
 
 };
 

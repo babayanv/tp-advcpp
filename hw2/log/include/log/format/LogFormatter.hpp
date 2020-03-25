@@ -15,7 +15,7 @@ class LogFormatter final : public BaseFormatter
 public:
     LogFormatter(Mod mod);
 
-    virtual std::string fmt(const std::string& msg, Level lv) noexcept override;
+    std::string fmt(const std::string& msg, Level lv) noexcept override;
 
 private:
     void handleColor(std::ostringstream& oss, Level lv);
