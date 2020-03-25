@@ -11,8 +11,6 @@ enum class Level
     INFO,
     WARNING,
     ERROR,
-
-    ALL = ERROR,
 };
 
 

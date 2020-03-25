@@ -5,7 +5,7 @@
 
 int main()
 {
-    log::init(log::create_stdout_logger(log::Level::ALL));
+    log::init(log::create_stdout_logger(log::Level::DEBUG));
 
     log::debug_tl("debug message");
     log::info_tl("info message");

@@ -50,7 +50,7 @@ Level BaseLogger::level() noexcept
 
 void BaseLogger::log(const std::string& log_msg, Level lv) noexcept
 {
-    if (lv > m_level)
+    if (lv < m_level)
     {
         return;
     }
