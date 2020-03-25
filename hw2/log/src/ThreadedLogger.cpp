@@ -48,11 +48,13 @@ ThreadedLogger::~ThreadedLogger() noexcept
 
 void ThreadedLogger::work()
 {
+    std::mutex mut;
+    std::unique_lock lock(mut);
+
     while (!m_done)
     {
         while (!m_notified)
         {
-            std::unique_lock lock(m_mut);
             m_cv.wait(lock);
         }
 

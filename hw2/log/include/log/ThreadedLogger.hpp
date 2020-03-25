@@ -29,7 +29,6 @@ public:
     void stop();
 
 private:
-    std::mutex m_mut;
     std::condition_variable m_cv;
     utils::SafeQueue<QueueDataType> m_queue;
     bool m_done;
