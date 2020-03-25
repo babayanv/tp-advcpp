@@ -1,4 +1,5 @@
 #include "log/ThreadedLogger.hpp"
+#include "log/Exception.hpp"
 
 
 namespace log
@@ -29,7 +30,7 @@ void ThreadedLogger::enqueue_log(const std::string& msg, CallbackType cb) noexce
 {
     if (m_done)
     {
-        return;
+        throw LoggerThreadStopped("can't enqueue into closed logger");
     }
 
     m_queue.enqueue(msg, cb);
