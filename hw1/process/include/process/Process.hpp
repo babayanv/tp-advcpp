@@ -37,7 +37,7 @@ public:
 
 
     template<class DataType,
-        class = typename std::enable_if_t<std::is_pod_v<DataType>>
+        class = std::enable_if_t<std::is_pod_v<DataType>>
     >
     inline void write(const DataType& data)
     {
@@ -45,7 +45,7 @@ public:
     }
 
     template<class DataType,
-        class = typename std::enable_if_t<std::is_pod_v<DataType>>
+        class = std::enable_if_t<std::is_pod_v<DataType>>
     >
     inline void read(DataType& data)
     {
