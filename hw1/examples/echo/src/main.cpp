@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
             std::cout << receive(proc) << std::endl;
         }
     }
-    catch (const proc::BadProcess& bp)
+    catch (const proc::ProcessError& bp)
     {
         std::cerr << bp.what() << std::endl;
         return 1;
