@@ -21,6 +21,7 @@ Process::Process(const std::string& path)
 
     if (m_pid < 0)
     {
+        close();
         throw ProcessError();
     }
     if (m_pid == 0)
@@ -46,21 +47,14 @@ Process::Process(Process&& other) noexcept
 
 Process::~Process() noexcept
 {
-    close();
-
-    try
-    {
-        terminate();
-    }
-    catch (const ProcessError& bs)
-    {
-        std::cerr << bs.what() << std::endl;
-    }
+    safeStop();
 }
 
 
 Process& Process::operator=(Process&& other) noexcept
 {
+    safeStop();
+
     m_p2c_fd = std::exchange(other.m_p2c_fd, -1);
     m_c2p_fd = std::exchange(other.m_c2p_fd, -1);
     m_pid = std::exchange(other.m_pid, -1);
@@ -154,6 +148,21 @@ void Process::terminate()
         waitpid(m_pid, NULL, 0) < 0)
     {
         throw ProcessError();
+    }
+}
+
+
+void Process::safeStop() noexcept
+{
+    close();
+
+    try
+    {
+        terminate();
+    }
+    catch (const ProcessError& bs)
+    {
+        std::cerr << bs.what() << std::endl;
     }
 }
 

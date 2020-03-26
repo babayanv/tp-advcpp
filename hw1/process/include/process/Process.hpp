@@ -35,6 +35,8 @@ public:
 
     void terminate();
 
+    void safeStop() noexcept;
+
 
     template<class DataType,
         class = std::enable_if_t<std::is_pod_v<DataType>>
