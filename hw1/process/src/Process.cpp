@@ -21,7 +21,7 @@ Process::Process(const std::string& path)
 
     if (m_pid < 0)
     {
-        throw BadProcess();
+        throw ProcessError();
     }
     if (m_pid == 0)
     {
@@ -52,7 +52,7 @@ Process::~Process() noexcept
     {
         terminate();
     }
-    catch (const BadProcess& bs)
+    catch (const ProcessError& bs)
     {
         std::cerr << bs.what() << std::endl;
     }
@@ -76,7 +76,7 @@ size_t Process::write(const void* data, size_t len)
 
     if (bytes_written < 0)
     {
-        throw BadProcess();
+        throw ProcessError();
     }
 
     return bytes_written;
@@ -102,7 +102,7 @@ size_t Process::read(void* data, size_t len)
 
     if (bytes_read < 0)
     {
-        throw BadProcess();
+        throw ProcessError();
     }
 
     if (bytes_read == 0)
@@ -153,7 +153,7 @@ void Process::terminate()
     if (kill(m_pid, SIGTERM) < 0 ||
         waitpid(m_pid, NULL, 0) < 0)
     {
-        throw BadProcess();
+        throw ProcessError();
     }
 }
 
@@ -162,7 +162,7 @@ void Process::initPipes(Pipe& fd1, Pipe& fd2)
 {
     if (pipe(fd1) < 0)
     {
-        throw BadProcess();
+        throw ProcessError();
     }
 
     if (pipe(fd2) < 0)
@@ -170,7 +170,7 @@ void Process::initPipes(Pipe& fd1, Pipe& fd2)
         ::close(fd1[0]);
         ::close(fd1[1]);
 
-        throw BadProcess();
+        throw ProcessError();
     }
 }
 
@@ -187,7 +187,7 @@ void Process::initAsChild(const std::string& path, Pipe& p2c_fd, Pipe& c2p_fd)
 
     if (execl(path.c_str(), path.c_str(), nullptr) < 0)
     {
-        throw BadProcess();
+        throw ProcessError();
     }
 }
 

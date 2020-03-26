@@ -8,8 +8,8 @@
 namespace proc
 {
 
-struct BadProcess : public std::exception {
-    const char* what() const noexcept {
+struct ProcessError : public std::exception {
+    const char* what() const noexcept override {
         return std::strerror(errno);
     }
 };
