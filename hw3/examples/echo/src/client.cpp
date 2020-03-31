@@ -7,7 +7,7 @@ int main()
 
     std::string msg(4, '\0');
 
-    while (msg != "exit")
+    while (std::cin.eof())
     {
         std::cin >> msg;
 

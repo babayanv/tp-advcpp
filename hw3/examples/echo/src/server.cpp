@@ -16,11 +16,10 @@ int main()
     conn.set_receive_timeout(5);
     conn.set_send_timeout(5);
 
-    std::string msg(4, '\0');
 
-    while (msg != "exit")
+    while (std::cin.eof())
     {
-        bzero(msg.data(), msg.size());
+        std::string msg(4, '\0');
 
         size_t msg_size = 0;
 
