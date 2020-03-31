@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    tcp::Connection conn(argv[1], atoi(argv[2]));
+    tcp::Connection conn(argv[1], strtoul(argv[2], NULL, 10));
 
     std::cout << "Connected to: " <<
         conn.get_addr() << ':' << conn.get_port() <<

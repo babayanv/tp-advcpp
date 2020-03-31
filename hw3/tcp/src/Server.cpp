@@ -6,8 +6,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#include <iostream>
-
 
 namespace tcp
 {
