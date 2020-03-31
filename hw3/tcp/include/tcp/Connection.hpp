@@ -35,6 +35,9 @@ public:
     void set_send_timeout(int timeout_sec);
     bool is_opened();
 
+    const std::string& get_addr();
+    uint16_t get_port();
+
 
     template<class DataType,
         class = std::enable_if_t<std::is_pod_v<DataType>>
@@ -57,7 +60,7 @@ private:
     int m_sock_fd;
 
     std::string m_dst_addr;
-    unsigned short m_dst_port;
+    uint16_t m_dst_port;
 
     bool m_opened;
 };

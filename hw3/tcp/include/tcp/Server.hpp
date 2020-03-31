@@ -11,10 +11,10 @@ namespace tcp
 class Server
 {
 public:
-    Server(const std::string& address, unsigned short port, int max_connect = 0);
+    Server(const std::string& address, uint16_t port, int max_connect = 0);
     ~Server() noexcept;
 
-    void open(const std::string& address, unsigned short port);
+    void open(const std::string& address, uint16_t port);
     void close();
 
     Connection accept();

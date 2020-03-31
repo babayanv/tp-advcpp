@@ -8,6 +8,8 @@
 
 #include <utility>
 
+#include <iostream>
+
 
 namespace tcp
 {
@@ -17,6 +19,7 @@ Connection::Connection(int&& sock_fd, const sockaddr_in& sock_info)
     : m_sock_fd(std::exchange(sock_fd, -1))
     , m_dst_addr(15, '\0')
     , m_dst_port(sock_info.sin_port)
+    , m_opened(true)
 {
     if (inet_ntop(AF_INET,
                   &sock_info.sin_addr,
@@ -137,6 +140,7 @@ size_t Connection::read(void* data, size_t len)
     if (bytes_read == 0)
     {
         m_opened = false;
+        throw SocketError("Socket file descriptor is closed: ");
     }
 
     return bytes_read;
@@ -189,6 +193,18 @@ void Connection::set_send_timeout(int timeout_sec)
 bool Connection::is_opened()
 {
     return m_opened;
+}
+
+
+const std::string& Connection::get_addr()
+{
+    return m_dst_addr;
+}
+
+
+uint16_t Connection::get_port()
+{
+    return m_dst_port;
 }
 
 } // namespace tcp

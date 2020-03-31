@@ -13,7 +13,7 @@ namespace tcp
 {
 
 
-Server::Server(const std::string& address, unsigned short port, int max_connect)
+Server::Server(const std::string& address, uint16_t port, int max_connect)
     : m_opened(false)
 {
     open(address, port);
@@ -27,7 +27,7 @@ Server::~Server() noexcept
 }
 
 
-void Server::open(const std::string& address, unsigned short port)
+void Server::open(const std::string& address, uint16_t port)
 {
     if (is_opened())
     {
