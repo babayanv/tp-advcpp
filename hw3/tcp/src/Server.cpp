@@ -34,7 +34,7 @@ Server::~Server() noexcept
 }
 
 
-void Server::open(const std::string& address, uint16_t port)
+void Server::open(const std::string& address, uint16_t port, int max_connect)
 {
     if (is_opened())
     {
@@ -72,6 +72,8 @@ void Server::open(const std::string& address, uint16_t port)
     }
 
     m_opened = true;
+
+    set_max_connect();
 }
 
 
