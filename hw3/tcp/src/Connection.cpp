@@ -41,7 +41,15 @@ Connection::Connection(const std::string& dst_addr, unsigned short dst_port)
         throw SocketError("Error creating socket: ");
     }
 
-    connect(m_dst_addr, m_dst_port);
+    try
+    {
+        connect(m_dst_addr, m_dst_port);
+    }
+    catch (const SocketError& se)
+    {
+        close();
+        throw se;
+    }
 }
 
 
