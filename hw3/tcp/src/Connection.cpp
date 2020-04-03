@@ -170,13 +170,21 @@ size_t Connection::read(void* data, size_t len)
 
 void Connection::readExact(void* data, size_t len)
 {
-    size_t bytes_read = 0;
+    size_t bytes_read_total = 0;
 
-    while (bytes_read != len)
+    while (bytes_read_total != len)
     {
-        void* buff_begin = static_cast<char*>(data) + bytes_read;
+        void* buff_begin = static_cast<char*>(data) + bytes_read_total;
 
-        bytes_read += read(buff_begin, len - bytes_read);
+        size_t bytes_read = read(buff_begin, len - bytes_read);
+
+        if (bytes_read == 0)
+        {
+            m_opened = false;
+            throw SocketError("Socket file descriptor is closed: ");
+        }
+
+        bytes_read_total += bytes_read;
     }
 }
 
