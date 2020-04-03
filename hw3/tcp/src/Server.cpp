@@ -38,14 +38,7 @@ void Server::open(const std::string& address, uint16_t port, int max_connect)
 {
     if (is_opened())
     {
-        try
-        {
-            close();
-        }
-        catch(const SocketError& se)
-        {
-            std::cerr << se.what() << std::endl;
-        }
+        close();
     }
 
     m_sock_fd = ::socket(AF_INET, SOCK_STREAM, 0);

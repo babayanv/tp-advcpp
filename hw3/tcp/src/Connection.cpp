@@ -61,14 +61,7 @@ Connection::~Connection() noexcept
 
 Connection& Connection::operator=(Connection&& other)
 {
-    try
-    {
-        close();
-    }
-    catch(const SocketError& se)
-    {
-        std::cerr << se.what() << std::endl;
-    }
+    close();
 
     m_sock_fd = std::exchange(other.m_sock_fd, -1);
     m_dst_addr = std::move(other.m_dst_addr);
@@ -81,7 +74,10 @@ Connection& Connection::operator=(Connection&& other)
 
 void Connection::connect(const std::string& dst_addr, unsigned short dst_port)
 {
-    close();
+    if (is_opened())
+    {
+        close();
+    }
 
     sockaddr_in dst_sock{};
     dst_sock.sin_family = AF_INET;
