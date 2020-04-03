@@ -13,7 +13,6 @@ class SocketError : public std::exception
 public:
     SocketError();
     explicit SocketError(const std::string& what_arg);
-    explicit SocketError(const char* what_arg);
 
     virtual ~SocketError() noexcept = default;
 

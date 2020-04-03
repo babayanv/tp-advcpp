@@ -19,13 +19,6 @@ SocketError::SocketError(const std::string& what_arg)
 }
 
 
-SocketError::SocketError(const char* what_arg)
-    :m_msg(what_arg)
-{
-    m_msg += std::strerror(errno);
-}
-
-
 const char* SocketError::what() const noexcept {
     return m_msg.c_str();
 }
