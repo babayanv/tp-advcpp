@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(hw2 CXX)
+project(hw3 CXX)
 
 #-------------------------------------------------------------------------------
 # Compiler config
