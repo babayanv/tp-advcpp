@@ -83,9 +83,6 @@ Connection& Connection::operator=(Connection&& other)
 
 void Connection::connect(const std::string& dst_addr, unsigned short dst_port)
 {
-    m_dst_addr = dst_addr;
-    m_dst_port = dst_port;
-
     sockaddr_in dst_sock{};
     dst_sock.sin_family = AF_INET;
     dst_sock.sin_port = ::htons(dst_port);
@@ -97,6 +94,9 @@ void Connection::connect(const std::string& dst_addr, unsigned short dst_port)
     {
         throw SocketError("Connection error: ");
     }
+
+    m_dst_addr = dst_addr;
+    m_dst_port = dst_port;
 }
 
 
