@@ -6,6 +6,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include <iostream>
+
 
 namespace tcp
 {
@@ -21,7 +23,14 @@ Server::Server(const std::string& address, uint16_t port, int max_connect)
 
 Server::~Server() noexcept
 {
-    close();
+    try
+    {
+        close();
+    }
+    catch(const SocketError& se)
+    {
+        std::cerr << se.what() << std::endl;
+    }
 }
 
 
@@ -29,7 +38,14 @@ void Server::open(const std::string& address, uint16_t port)
 {
     if (is_opened())
     {
-        close();
+        try
+        {
+            close();
+        }
+        catch(const SocketError& se)
+        {
+            std::cerr << se.what() << std::endl;
+        }
     }
 
     m_sock_fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -61,9 +77,15 @@ void Server::open(const std::string& address, uint16_t port)
 
 void Server::close()
 {
-    ::close(m_sock_fd);
+    int res = ::close(m_sock_fd);
 
+    m_sock_fd = -1;
     m_opened = false;
+
+    if (res != 0)
+    {
+        throw SocketError("Error closing socket: ");
+    }
 }
 
 
