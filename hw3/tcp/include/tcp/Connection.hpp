@@ -12,8 +12,8 @@ namespace tcp
 
 class Connection
 {
+    friend class Server;
 public:
-    Connection(int sock_fd, const sockaddr_in& sock_info);
     Connection(const std::string& address, unsigned short port);
     Connection(const Connection& other) = delete;
     Connection(Connection&& other);
@@ -63,6 +63,9 @@ private:
     uint16_t m_dst_port;
 
     bool m_opened;
+
+private:
+    Connection(int sock_fd, const sockaddr_in& sock_info);
 };
 
 } // namespace tcp

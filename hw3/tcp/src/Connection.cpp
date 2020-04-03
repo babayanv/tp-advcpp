@@ -14,23 +14,6 @@ namespace tcp
 {
 
 
-Connection::Connection(int sock_fd, const sockaddr_in& sock_info)
-    : m_sock_fd(std::exchange(sock_fd, -1))
-    , m_dst_addr(15, '\0')
-    , m_dst_port(sock_info.sin_port)
-    , m_opened(true)
-{
-    if (inet_ntop(AF_INET,
-                  &sock_info.sin_addr,
-                  m_dst_addr.data(),
-                  static_cast<in_port_t>(m_dst_addr.size())) == nullptr)
-    {
-        close();
-        throw SocketError("Error converting accepted address from binary to string: ");
-    }
-}
-
-
 Connection::Connection(const std::string& dst_addr, unsigned short dst_port)
     : m_dst_addr(dst_addr)
     , m_dst_port(dst_port)
@@ -234,6 +217,24 @@ const std::string& Connection::get_addr()
 uint16_t Connection::get_port()
 {
     return m_dst_port;
+}
+
+
+
+Connection::Connection(int sock_fd, const sockaddr_in& sock_info)
+    : m_sock_fd(std::exchange(sock_fd, -1))
+    , m_dst_addr(15, '\0')
+    , m_dst_port(sock_info.sin_port)
+    , m_opened(true)
+{
+    if (inet_ntop(AF_INET,
+                  &sock_info.sin_addr,
+                  m_dst_addr.data(),
+                  static_cast<in_port_t>(m_dst_addr.size())) == nullptr)
+    {
+        close();
+        throw SocketError("Error converting accepted address from binary to string: ");
+    }
 }
 
 } // namespace tcp
