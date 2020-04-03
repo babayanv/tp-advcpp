@@ -13,7 +13,7 @@ namespace tcp
 class Connection
 {
 public:
-    Connection(int&& sock_fd, const sockaddr_in& sock_info);
+    Connection(int sock_fd, const sockaddr_in& sock_info);
     Connection(const std::string& address, unsigned short port);
     Connection(const Connection& other) = delete;
     Connection(Connection&& other);

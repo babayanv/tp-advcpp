@@ -14,7 +14,7 @@ namespace tcp
 {
 
 
-Connection::Connection(int&& sock_fd, const sockaddr_in& sock_info)
+Connection::Connection(int sock_fd, const sockaddr_in& sock_info)
     : m_sock_fd(std::exchange(sock_fd, -1))
     , m_dst_addr(15, '\0')
     , m_dst_port(sock_info.sin_port)

@@ -103,7 +103,7 @@ Connection Server::accept()
         throw SocketError("Socket accept failed: ");
     }
 
-    return Connection(std::move(conn_fd), client_addr);
+    return Connection(conn_fd, client_addr);
 }
 
 
