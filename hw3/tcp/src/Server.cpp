@@ -73,7 +73,7 @@ void Server::open(const std::string& address, uint16_t port, int max_connect)
 
     m_opened = true;
 
-    set_max_connect();
+    set_max_connect(max_connect);
 }
 
 
