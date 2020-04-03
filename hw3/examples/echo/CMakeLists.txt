@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(EX_CLIENT_SRCS
-    "${PROJECT_SOURCE_DIR}/src/client.cpp"
+    "src/client.cpp"
 )
 set(EX_SERVER_SRCS
-    "${PROJECT_SOURCE_DIR}/src/server.cpp"
+    "src/server.cpp"
 )
 
 set(EX_ECHO_CLIENT_NAME "${EX_ECHO_NAME}_client")

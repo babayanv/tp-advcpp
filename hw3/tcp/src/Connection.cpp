@@ -17,7 +17,7 @@ namespace tcp
 Connection::Connection(const std::string& dst_addr, unsigned short dst_port)
     : m_dst_addr(dst_addr)
     , m_dst_port(dst_port)
-    , m_opened(true)
+    , m_opened(false)
 {
     m_sock_fd = ::socket(AF_INET, SOCK_STREAM, 0);
     if (m_sock_fd < 0)
@@ -61,7 +61,10 @@ Connection::~Connection() noexcept
 
 Connection& Connection::operator=(Connection&& other)
 {
-    close();
+    if (is_opened())
+    {
+        close();
+    }
 
     m_sock_fd = std::exchange(other.m_sock_fd, -1);
     m_dst_addr = std::move(other.m_dst_addr);
@@ -93,6 +96,7 @@ void Connection::connect(const std::string& dst_addr, unsigned short dst_port)
 
     m_dst_addr = dst_addr;
     m_dst_port = dst_port;
+    m_opened = true;
 }
 
 
@@ -157,7 +161,7 @@ void Connection::readExact(void* data, size_t len)
     {
         void* buff_begin = static_cast<char*>(data) + bytes_read_total;
 
-        size_t bytes_read = read(buff_begin, len - bytes_read);
+        size_t bytes_read = read(buff_begin, len - bytes_read_total);
 
         if (bytes_read == 0)
         {
@@ -216,7 +220,6 @@ uint16_t Connection::get_port()
 {
     return m_dst_port;
 }
-
 
 
 Connection::Connection(int sock_fd, const sockaddr_in& sock_info)
