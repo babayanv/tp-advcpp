@@ -164,12 +164,6 @@ size_t Connection::read(void* data, size_t len)
         throw SocketError("Error reading from socket: ");
     }
 
-    if (bytes_read == 0)
-    {
-        m_opened = false;
-        throw SocketError("Socket file descriptor is closed: ");
-    }
-
     return bytes_read;
 }
 
