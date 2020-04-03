@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include <utility>
+#include <iostream>
 
 
 namespace tcp
@@ -64,13 +65,27 @@ Connection::Connection(Connection&& other)
 
 Connection::~Connection() noexcept
 {
-    close();
+    try
+    {
+        close();
+    }
+    catch(const SocketError& se)
+    {
+        std::cerr << se.what() << std::endl;
+    }
 }
 
 
 Connection& Connection::operator=(Connection&& other)
 {
-    close();
+    try
+    {
+        close();
+    }
+    catch(const SocketError& se)
+    {
+        std::cerr << se.what() << std::endl;
+    }
 
     m_sock_fd = std::exchange(other.m_sock_fd, -1);
     m_dst_addr = std::move(other.m_dst_addr);
@@ -102,9 +117,15 @@ void Connection::connect(const std::string& dst_addr, unsigned short dst_port)
 
 void Connection::close()
 {
-    ::close(m_sock_fd);
+    int res = ::close(m_sock_fd);
 
+    m_sock_fd = -1;
     m_opened = false;
+
+    if (res != 0)
+    {
+        throw SocketError("Error closing socket: ");
+    }
 }
 
 
