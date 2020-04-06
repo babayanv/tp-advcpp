@@ -72,15 +72,18 @@ void Server::open(const std::string& address, uint16_t port, int max_connect)
 
 void Server::close()
 {
-    int res = ::close(m_sock_fd);
+    if (m_sock_fd == -1)
+    {
+        return;
+    }
 
-    m_sock_fd = -1;
-    m_opened = false;
-
-    if (res != 0)
+    if (::close(m_sock_fd) != 0)
     {
         throw SocketError("Error closing socket: ");
     }
+
+    m_sock_fd = -1;
+    m_opened = false;
 }
 
 
