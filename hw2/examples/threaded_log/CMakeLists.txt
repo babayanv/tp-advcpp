@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(EX_THREADED_LOG_SRCS
-    "${PROJECT_SOURCE_DIR}/threaded_log.cpp"
+    "threaded_log.cpp"
 )
 
 add_executable(${EX_THREADED_LOG_NAME} ${EX_THREADED_LOG_SRCS})

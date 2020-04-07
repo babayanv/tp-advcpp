@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(EX_LOGGING_SRCS
-    "${PROJECT_SOURCE_DIR}/logging.cpp"
+    "logging.cpp"
 )
 
 add_executable(${EX_LOGGING_NAME} ${EX_LOGGING_SRCS})
