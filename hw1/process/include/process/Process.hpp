@@ -66,6 +66,8 @@ private:
     void initPipes(Pipe& fd1, Pipe& fd2);
     void initAsChild(const std::string& path, Pipe& p2c_fd, Pipe& c2p_fd);
     void initAsParent(Pipe& p2c_fd, Pipe& c2p_fd);
+
+    void closeFd(int& fd);
 };
 
 } // namespace proc
