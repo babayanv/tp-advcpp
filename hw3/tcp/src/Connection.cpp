@@ -107,8 +107,13 @@ void Connection::close()
         return;
     }
 
-    if (::close(m_sock_fd) != 0)
+    while (::close(m_sock_fd) == 0)
     {
+        if (errno == EINTR)
+        {
+            continue;
+        }
+
         throw SocketError("Error closing socket: ");
     }
 
