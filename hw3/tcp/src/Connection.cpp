@@ -107,7 +107,7 @@ void Connection::close()
         return;
     }
 
-    while (::close(m_sock_fd) == 0)
+    while (::close(m_sock_fd) != 0)
     {
         if (errno == EINTR)
         {
