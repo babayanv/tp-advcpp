@@ -129,14 +129,14 @@ bool Process::isReadable() const
 
 void Process::closeStdin()
 {
-    ::close(m_p2c_fd);
+    closeFd(m_p2c_fd);
 }
 
 
 void Process::close() noexcept
 {
-    ::close(m_c2p_fd);
-    ::close(m_p2c_fd);
+    closeFd(m_c2p_fd);
+    closeFd(m_p2c_fd);
 
     m_is_readable = false;
 }
@@ -176,8 +176,8 @@ void Process::initPipes(Pipe& fd1, Pipe& fd2)
 
     if (pipe(fd2) < 0)
     {
-        ::close(fd1[0]);
-        ::close(fd1[1]);
+        closeFd(fd1[0]);
+        closeFd(fd1[1]);
 
         throw ProcessError();
     }
@@ -189,10 +189,10 @@ void Process::initAsChild(const std::string& path, Pipe& p2c_fd, Pipe& c2p_fd)
     dup2(p2c_fd[0], STDIN_FILENO);
     dup2(c2p_fd[1], STDOUT_FILENO);
 
-    ::close(p2c_fd[0]);
-    ::close(p2c_fd[1]);
-    ::close(c2p_fd[0]);
-    ::close(c2p_fd[1]);
+    closeFd(p2c_fd[0]);
+    closeFd(p2c_fd[1]);
+    closeFd(c2p_fd[0]);
+    closeFd(c2p_fd[1]);
 
     if (execl(path.c_str(), path.c_str(), nullptr) < 0)
     {
@@ -206,8 +206,29 @@ void Process::initAsParent(Pipe& p2c_fd, Pipe& c2p_fd)
     m_p2c_fd = p2c_fd[1];
     m_c2p_fd = c2p_fd[0];
 
-    ::close(p2c_fd[0]);
-    ::close(c2p_fd[1]);
+    closeFd(p2c_fd[0]);
+    closeFd(c2p_fd[1]);
+}
+
+
+void Process::closeFd(int& fd)
+{
+    if (fd == -1)
+    {
+        return;
+    }
+
+    while (::close(fd) != 0)
+    {
+        if (errno == EINTR)
+        {
+            continue;
+        }
+
+        throw ProcessError();
+    }
+
+    fd = -1;
 }
 
 } // namespace proc

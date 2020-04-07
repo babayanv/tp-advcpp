@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(EX_ECHO_SRCS
-    "${PROJECT_SOURCE_DIR}/src/echo.cpp"
+    "src/echo.cpp"
 )
 set(EX_ECHO_MAIN
-    "${PROJECT_SOURCE_DIR}/src/main.cpp"
+    "src/main.cpp"
 )
 
 set(EX_ECHO_CHILD_NAME "${EX_ECHO_NAME}_child")
