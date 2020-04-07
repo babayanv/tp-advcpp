@@ -1,18 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(${EX_THREADED_LOG_NAME} CXX)
-
 set(EX_THREADED_LOG_SRCS
-    "${PROJECT_SOURCE_DIR}/threaded_log.cpp"
+    "threaded_log.cpp"
 )
 
-add_executable(${PROJECT_NAME} ${EX_THREADED_LOG_SRCS})
+add_executable(${EX_THREADED_LOG_NAME} ${EX_THREADED_LOG_SRCS})
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${EX_THREADED_LOG_NAME}
     ${LOG_LIB_NAME}
 )
 
-set_target_properties(${PROJECT_NAME}
+set_target_properties(${EX_THREADED_LOG_NAME}
     PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${EX_THREADED_LOG_NAME}"
 )
