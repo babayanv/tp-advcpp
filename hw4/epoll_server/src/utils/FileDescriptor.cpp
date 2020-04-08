@@ -1,7 +1,9 @@
 #include "epoll_server/utils/FileDescriptor.hpp"
+#include "epoll_server/Exception.hpp"
 
 #include <unistd.h>
 
+#include <iostream>
 #include <utility>
 
 
@@ -26,7 +28,14 @@ FileDescriptor::FileDescriptor(FileDescriptor&& other)
 
 FileDescriptor::~FileDescriptor() noexcept
 {
-    close();
+    try
+    {
+        close();
+    }
+    catch(const FDError& fde)
+    {
+        std::cerr << fde.what() << std::endl;
+    }
 }
 
 
@@ -53,7 +62,15 @@ void FileDescriptor::close()
         return;
     }
 
-    ::close(m_fd);
+    while (::close(m_fd) != 0)
+    {
+        if (errno == EINTR)
+        {
+            continue;
+        }
+
+        throw FDError("Error closing file descriptor: ");
+    }
 
     m_fd = -1;
 }

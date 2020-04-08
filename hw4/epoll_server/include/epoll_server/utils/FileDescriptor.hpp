@@ -26,7 +26,7 @@ public:
     int extract();
 
 private:
-    int m_fd;
+    int m_fd = -1;
 };
 
 } // namespace utils
