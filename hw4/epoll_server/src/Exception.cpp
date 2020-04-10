@@ -24,4 +24,3 @@ const char* ErrnoException::what() const noexcept {
 }
 
 } // namespace tcp
-
