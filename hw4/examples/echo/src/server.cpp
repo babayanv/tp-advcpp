@@ -1,4 +1,5 @@
 #include "epoll_server/Server.hpp"
+#include "epoll_server/Exception.hpp"
 
 #include <iostream>
 
@@ -11,22 +12,68 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    es::Server server(argv[1], strtoul(argv[2], NULL, 10),
-        [](es::Connection& conn){
-            std::string msg(4, '\0');
-            conn.readExact(msg.data(), msg.size());
+    es::Server server;
 
-            std::cout << "Received: " << msg << std::endl;
-        },
-        [](es::Connection& conn){
-            std::string msg("pong");
+    auto handler =
+        [&server](es::Connection& conn){
+            if (conn.events().size() == 1)
+            {
+                std::cout << "Connected: " << conn.addr() << ':' << conn.port() << std::endl;
+            }
 
-            std::cout << "Sent: " << msg << std::endl;
-            conn.writeExact(msg.data(), msg.size());
-        },
-        atoi(argv[3]));
+            uint32_t recent_events = conn.recent_event().events;
 
-    server.run();
+            if (recent_events & EPOLLHUP ||
+                recent_events & EPOLLERR ||
+                recent_events & EPOLLRDHUP)
+            {
+                std::cout << "Disconnected: " << conn.addr() << ':' << conn.port() << std::endl;
+                return;
+            }
+
+            if (conn.recent_event().events & EPOLLIN)
+            {
+                std::string msg(128, '\0');
+                if (conn.read(msg.data(), msg.size()) == 0)
+                {
+                    return;
+                }
+
+                std::cout << "Received: " << msg << std::endl;
+
+                server.fdReadyToWrite(conn.fd());
+            }
+
+            if (conn.recent_event().events & EPOLLOUT)
+            {
+                const std::string msg("pong");
+                if (conn.write(msg.c_str(), msg.size()) == 0)
+                {
+                    return;
+                }
+
+                std::cout << "Sent: " << msg << std::endl;
+
+                server.fdReadyToRead(conn.fd());
+            }
+        };
+
+    server.init(argv[1], strtoul(argv[2], NULL, 10), atoi(argv[3]), handler);
+
+    while (true)
+    {
+        try
+        {
+            server.run();
+        }
+        catch(const es::ServerError& se)
+        {
+            std::cerr << se.what() << std::endl;
+
+            server.init(argv[1], strtoul(argv[2], NULL, 10), atoi(argv[3]), handler);
+            continue;
+        }
+    }
 
     return 0;
 }

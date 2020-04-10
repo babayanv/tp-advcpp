@@ -25,6 +25,8 @@ public:
     void close();
     int extract();
 
+    bool is_opened();
+
 private:
     int m_fd = -1;
 };

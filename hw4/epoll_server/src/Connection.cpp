@@ -112,54 +112,78 @@ void Connection::close()
 
 size_t Connection::write(const void* data, size_t len)
 {
-    ssize_t bytes_written = ::write(m_sock_fd, data, len);
-
-    if (bytes_written < 0)
+    while (true)
     {
-        throw ConnectionError("Error writing to socket: ");
-    }
+        ssize_t bytes_written = ::write(m_sock_fd, data, len);
+        if (bytes_written < 0)
+        {
+            if (errno == EINTR)
+            {
+                continue;
+            }
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                return 0;
+            }
 
-    return bytes_written;
+            throw ConnectionError("Error writing to socket: ");
+        }
+
+        return bytes_written;
+    }
 }
 
 
-void Connection::writeExact(const void* data, size_t len)
+void Connection::write_exact(const void* data, size_t len)
 {
-    size_t bytes_written = 0;
+    size_t bytes_written_total = 0;
 
-    while (bytes_written != len)
+    while (bytes_written_total != len)
     {
-        const void* buff_begin = static_cast<const char*>(data) + bytes_written;
+        const void* buff_begin = static_cast<const char*>(data) + bytes_written_total;
 
-        bytes_written += write(buff_begin, len - bytes_written);
+        ssize_t bytes_written = write(buff_begin, len - bytes_written_total);
+        if (bytes_written == 0)
+        {
+            throw ConnectionError("Unable to write exactly " + std::to_string(len) + " bytes: ");
+        }
+
+        bytes_written_total += bytes_written;
     }
 }
 
 
 size_t Connection::read(void* data, size_t len)
 {
-    ssize_t bytes_read = ::read(m_sock_fd, data, len);
-
-    if (bytes_read < 0)
+    while (true)
     {
-        if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
+        ssize_t bytes_read = ::read(m_sock_fd, data, len);
+
+        if (bytes_read < 0)
         {
-            return 0;
+            if (errno == EINTR)
+            {
+                continue;
+            }
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                return 0;
+            }
+
+            throw ConnectionError("Error reading from socket: ");
         }
 
-        throw ConnectionError("Error reading from socket: ");
-    }
+        if (bytes_read == 0)
+        {
+            close();
+        }
 
-    if (bytes_read == 0)
-    {
-        close();
+        return bytes_read;
     }
-
-    return bytes_read;
 }
 
 
-void Connection::readExact(void* data, size_t len)
+void Connection::read_exact(void* data, size_t len)
 {
     size_t bytes_read_total = 0;
 
@@ -167,44 +191,13 @@ void Connection::readExact(void* data, size_t len)
     {
         void* buff_begin = static_cast<char*>(data) + bytes_read_total;
 
-        size_t bytes_read = read(buff_begin, len - bytes_read_total);
-
+        ssize_t bytes_read = read(buff_begin, len - bytes_read_total);
         if (bytes_read == 0)
         {
             throw ConnectionError("Unable to read exactly " + std::to_string(len) + " bytes: ");
         }
 
         bytes_read_total += bytes_read;
-    }
-}
-
-
-void Connection::set_receive_timeout(int timeout_sec)
-{
-    timeval timeout{timeout_sec, 0};
-
-    if (::setsockopt(m_sock_fd,
-                     SOL_SOCKET,
-                     SO_RCVTIMEO,
-                     &timeout,
-                     sizeof(timeout)) != 0)
-    {
-        throw ConnectionError("Error setting socket options: ");
-    }
-}
-
-
-void Connection::set_send_timeout(int timeout_sec)
-{
-    timeval timeout{timeout_sec, 0};
-
-    if (::setsockopt(m_sock_fd,
-                     SOL_SOCKET,
-                     SO_SNDTIMEO,
-                     &timeout,
-                     sizeof(timeout)) != 0)
-    {
-        throw ConnectionError("Error setting socket options: ");
     }
 }
 
@@ -221,9 +214,15 @@ uint16_t Connection::port()
 }
 
 
+int Connection::fd()
+{
+    return m_sock_fd;
+}
+
+
 bool Connection::is_opened()
 {
-    return m_sock_fd != -1;
+    return m_sock_fd.is_opened();
 }
 
 

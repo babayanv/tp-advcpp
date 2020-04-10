@@ -13,11 +13,8 @@ namespace es
 {
 
 
-Server::Server(const std::string& address, uint16_t port,
-               Callback&& do_recv_from_client, Callback&& do_send_to_client,
-               int max_connect)
-    : m_do_recv_from_client(std::forward<Callback>(do_recv_from_client))
-    , m_do_send_to_client(std::forward<Callback>(do_send_to_client))
+Server::Server(const std::string& address, uint16_t port, int max_connect, Callback&& do_handle_client)
+    : m_do_handle_client(std::forward<Callback>(do_handle_client))
 {
     open(address, port);
     listen(max_connect);
@@ -26,14 +23,33 @@ Server::Server(const std::string& address, uint16_t port,
 }
 
 
-Server::Server(uint16_t port,
-               Callback&& do_recv_from_client, Callback&& do_send_to_client,
-               int max_connect)
-    : Server("0.0.0.0", port, 
-             std::forward<Callback>(do_recv_from_client),
-             std::forward<Callback>(do_send_to_client),
-             max_connect)
+Server::Server(uint16_t port, int max_connect, Callback&& do_handle_client)
+    : Server("0.0.0.0", port, max_connect,
+             std::forward<Callback>(do_handle_client))
 {
+}
+
+
+void Server::init(const std::string& address, uint16_t port, int max_connect, Callback&& do_handle_client)
+{
+    if (is_opened())
+    {
+        close();
+    }
+
+    m_do_handle_client = std::forward<Callback>(do_handle_client);
+
+    open(address, port);
+    listen(max_connect);
+    create_epoll();
+    add_epoll(m_sock_fd, EPOLLIN);
+}
+
+
+void Server::init(uint16_t port, int max_connect, Callback&& do_handle_client)
+{
+    init("0.0.0.0", port, max_connect,
+          std::forward<Callback>(do_handle_client));
 }
 
 
@@ -90,7 +106,7 @@ void Server::close()
 
 bool Server::is_opened()
 {
-    return m_sock_fd != -1;
+    return m_sock_fd.is_opened();
 }
 
 
@@ -99,7 +115,7 @@ void Server::run()
     constexpr size_t EPOLL_SIZE = 128;
     epoll_event events[EPOLL_SIZE];
 
-    while (true)
+    while (is_opened())
     {
         int fd_count = epoll_wait(m_epoll_fd, events, EPOLL_SIZE, -1);
         if (fd_count < 0)
@@ -126,6 +142,18 @@ void Server::run()
             }
         }
     }
+}
+
+
+void Server::fdReadyToRead(int fd)
+{
+    modify_epoll(fd, EPOLLIN | EPOLLRDHUP);
+}
+
+
+void Server::fdReadyToWrite(int fd)
+{
+    modify_epoll(fd, EPOLLOUT);
 }
 
 
@@ -167,11 +195,11 @@ void Server::modify_epoll(int fd, uint32_t events)
 
 void Server::accept_clients()
 {
-    sockaddr_in client_addr;
-    socklen_t addr_size = sizeof(client_addr);
-
     while (true)
     {
+        sockaddr_in client_addr;
+        socklen_t addr_size = sizeof(client_addr);
+
         int conn_fd = ::accept4(m_sock_fd,
                                 reinterpret_cast<sockaddr*>(&client_addr),
                                 &addr_size,
@@ -194,31 +222,23 @@ void Server::accept_clients()
                               std::forward_as_tuple(conn_fd),
                               std::forward_as_tuple(conn_fd, client_addr));
 
-        add_epoll(conn_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP);
+        add_epoll(conn_fd, EPOLLIN | EPOLLRDHUP);
     }
 }
 
 
 void Server::handle_client(int fd, epoll_event event)
 {
-    if (event.events & EPOLLRDHUP ||
-        event.events & EPOLLHUP ||
-        event.events & EPOLLERR)
-    {
-        m_connections.erase(fd);
-        return;
-    }
-
     Connection& conn = m_connections.at(fd);
     conn.register_event(event);
 
-    if (event.events & EPOLLIN)
+    m_do_handle_client(conn);
+
+    if (event.events & EPOLLHUP ||
+        event.events & EPOLLERR ||
+        event.events & EPOLLRDHUP)
     {
-        m_do_recv_from_client(conn);
-    }
-    else if (event.events & EPOLLOUT)
-    {
-        m_do_send_to_client(conn);
+        m_connections.erase(fd);
     }
 }
 

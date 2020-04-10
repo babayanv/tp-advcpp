@@ -85,6 +85,12 @@ int FileDescriptor::extract()
     return fd;
 }
 
+
+bool FileDescriptor::is_opened()
+{
+    return m_fd != -1;
+}
+
 } // namespace utils
 
 } // namespace es

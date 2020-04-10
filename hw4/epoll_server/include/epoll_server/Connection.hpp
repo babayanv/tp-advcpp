@@ -7,7 +7,7 @@
 #include <sys/epoll.h>
 
 #include <string>
-#include <forward_list>
+#include <list>
 
 
 namespace es
@@ -16,7 +16,7 @@ namespace es
 
 class Connection
 {
-    using EventsCont = std::forward_list<epoll_event>;
+    using EventsCont = std::list<epoll_event>;
 
 public:
     Connection(const std::string& dst_addr, uint16_t dst_port);
@@ -36,15 +36,13 @@ public:
     bool is_opened();
 
     size_t write(const void* data, size_t len);
-    void writeExact(const void* data, size_t len);
+    void write_exact(const void* data, size_t len);
     size_t read(void* data, size_t len);
-    void readExact(void* data, size_t len);
-
-    void set_receive_timeout(int timeout_sec);
-    void set_send_timeout(int timeout_sec);
+    void read_exact(void* data, size_t len);
 
     const std::string& addr();
     uint16_t port();
+    int fd();
 
     void register_event(const epoll_event& event);
     const EventsCont& events();
