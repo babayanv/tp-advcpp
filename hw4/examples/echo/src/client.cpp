@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     {
         std::string msg("ping");
 
-        conn.write_exact(msg.c_str(), msg.size());
+        conn.write(msg.c_str(), msg.size());
         std::cout << "Sent: " << msg << std::endl;
 
         while(conn.read(msg.data(), 4) == 0);

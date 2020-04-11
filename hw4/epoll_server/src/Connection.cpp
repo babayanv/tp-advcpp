@@ -135,25 +135,6 @@ size_t Connection::write(const void* data, size_t len)
 }
 
 
-void Connection::write_exact(const void* data, size_t len)
-{
-    size_t bytes_written_total = 0;
-
-    while (bytes_written_total != len)
-    {
-        const void* buff_begin = static_cast<const char*>(data) + bytes_written_total;
-
-        ssize_t bytes_written = write(buff_begin, len - bytes_written_total);
-        if (bytes_written == 0)
-        {
-            throw ConnectionError("Unable to write exactly " + std::to_string(len) + " bytes: ");
-        }
-
-        bytes_written_total += bytes_written;
-    }
-}
-
-
 size_t Connection::read(void* data, size_t len)
 {
     while (true)
@@ -180,25 +161,6 @@ size_t Connection::read(void* data, size_t len)
         }
 
         return bytes_read;
-    }
-}
-
-
-void Connection::read_exact(void* data, size_t len)
-{
-    size_t bytes_read_total = 0;
-
-    while (bytes_read_total != len)
-    {
-        void* buff_begin = static_cast<char*>(data) + bytes_read_total;
-
-        ssize_t bytes_read = read(buff_begin, len - bytes_read_total);
-        if (bytes_read == 0)
-        {
-            throw ConnectionError("Unable to read exactly " + std::to_string(len) + " bytes: ");
-        }
-
-        bytes_read_total += bytes_read;
     }
 }
 

@@ -36,9 +36,7 @@ public:
     bool is_opened();
 
     size_t write(const void* data, size_t len);
-    void write_exact(const void* data, size_t len);
     size_t read(void* data, size_t len);
-    void read_exact(void* data, size_t len);
 
     const std::string& addr();
     uint16_t port();
@@ -54,17 +52,17 @@ public:
     template<class DataType,
         class = std::enable_if_t<std::is_pod_v<DataType>>
     >
-    void write(const DataType& data)
+    size_t write(const DataType& data)
     {
-        writeExact(&data, sizeof(DataType));
+        return write(&data, sizeof(DataType));
     }
 
     template<class DataType,
         class = std::enable_if_t<std::is_pod_v<DataType>>
     >
-    void read(DataType& data)
+    size_t read(DataType& data)
     {
-        readExact(&data, sizeof(DataType));
+        return readExact(&data, sizeof(DataType));
     }
 
 private:
