@@ -58,19 +58,13 @@ int main(int argc, char* argv[])
 
     es::Server server(argv[1], strtoul(argv[2], NULL, 10), atoi(argv[3]), handler);;
 
-    while (true)
+    try
     {
-        try
-        {
-            server.run();
-        }
-        catch(const es::ServerError& se)
-        {
-            std::cerr << se.what() << std::endl;
-
-            server.init(argv[1], strtoul(argv[2], NULL, 10), atoi(argv[3]), handler);
-            continue;
-        }
+        server.run();
+    }
+    catch(const es::ServerError& se)
+    {
+        std::cerr << se.what() << std::endl;
     }
 
     return 0;
