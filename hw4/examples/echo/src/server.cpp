@@ -17,7 +17,7 @@ auto parse_args(char* argv[])
 
     int max_connect{};
     {
-        std::string_view sv(argv[2]);
+        std::string_view sv(argv[3]);
         std::from_chars(sv.data(), sv.data() + sv.size(), max_connect);
     }
 
