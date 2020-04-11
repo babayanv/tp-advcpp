@@ -62,7 +62,7 @@ public:
     >
     size_t read(DataType& data)
     {
-        return readExact(&data, sizeof(DataType));
+        return read(&data, sizeof(DataType));
     }
 
 private:
