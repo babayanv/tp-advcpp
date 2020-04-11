@@ -12,10 +12,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    es::Server server;
-
     auto handler =
-        [&server](es::Connection& conn){
+        [](es::Connection& conn){
             if (conn.events().size() == 1)
             {
                 std::cout << "Connected: " << conn.addr() << ':' << conn.port() << std::endl;
@@ -41,7 +39,7 @@ int main(int argc, char* argv[])
 
                 std::cout << "Received: " << msg << std::endl;
 
-                server.fdReadyToWrite(conn.fd());
+                conn.setReadyToWrite();
             }
 
             if (conn.recent_event().events & EPOLLOUT)
@@ -54,11 +52,11 @@ int main(int argc, char* argv[])
 
                 std::cout << "Sent: " << msg << std::endl;
 
-                server.fdReadyToRead(conn.fd());
+                conn.setReadyToRead();
             }
         };
 
-    server.init(argv[1], strtoul(argv[2], NULL, 10), atoi(argv[3]), handler);
+    es::Server server(argv[1], strtoul(argv[2], NULL, 10), atoi(argv[3]), handler);;
 
     while (true)
     {

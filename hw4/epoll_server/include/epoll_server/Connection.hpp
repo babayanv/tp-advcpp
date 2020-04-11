@@ -20,7 +20,7 @@ class Connection
 
 public:
     Connection(const std::string& dst_addr, uint16_t dst_port);
-    Connection(int sock_fd, const sockaddr_in& sock_info);
+    Connection(int sock_fd, const sockaddr_in& sock_info, int epoll_fd = -1);
     Connection(Connection&& other);
     ~Connection() noexcept = default;
 
@@ -42,11 +42,13 @@ public:
 
     const std::string& addr();
     uint16_t port();
-    int fd();
 
     void register_event(const epoll_event& event);
     const EventsCont& events();
     const epoll_event& recent_event();
+
+    void setReadyToRead();
+    void setReadyToWrite();
 
 
     template<class DataType,
@@ -66,12 +68,16 @@ public:
     }
 
 private:
+    int m_epoll_fd;
     utils::FileDescriptor m_sock_fd;
 
     std::string m_dst_addr;
     uint16_t m_dst_port;
 
     EventsCont m_events;
+
+private:
+    void modify_epoll(uint32_t events);
 };
 
 } // namespace es

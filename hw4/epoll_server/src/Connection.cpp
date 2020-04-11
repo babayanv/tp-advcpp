@@ -31,8 +31,9 @@ Connection::Connection(const std::string& dst_addr, uint16_t dst_port)
 }
 
 
-Connection::Connection(int sock_fd, const sockaddr_in& sock_info)
-    : m_sock_fd(sock_fd)
+Connection::Connection(int sock_fd, const sockaddr_in& sock_info, int epoll_fd)
+    : m_epoll_fd(epoll_fd)
+    , m_sock_fd(sock_fd)
     , m_dst_addr(15, '\0')
     , m_dst_port(sock_info.sin_port)
 {
@@ -214,12 +215,6 @@ uint16_t Connection::port()
 }
 
 
-int Connection::fd()
-{
-    return m_sock_fd;
-}
-
-
 bool Connection::is_opened()
 {
     return m_sock_fd.is_opened();
@@ -241,6 +236,31 @@ const Connection::EventsCont& Connection::events()
 const epoll_event& Connection::recent_event()
 {
     return m_events.front();
+}
+
+
+void Connection::setReadyToRead()
+{
+    modify_epoll(EPOLLIN | EPOLLRDHUP);
+}
+
+
+void Connection::setReadyToWrite()
+{
+    modify_epoll(EPOLLOUT);
+}
+
+
+void Connection::modify_epoll(uint32_t events)
+{
+    epoll_event event{};
+    event.data.fd = m_sock_fd;
+    event.events = events;
+
+    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_MOD, m_sock_fd, &event) < 0)
+    {
+        throw ServerError("Error modifying fd events: ");
+    }
 }
 
 } // namespace es

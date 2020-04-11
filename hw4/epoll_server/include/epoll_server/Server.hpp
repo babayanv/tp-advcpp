@@ -49,9 +49,6 @@ public:
 
     void run();
 
-    void fdReadyToRead(int fd);
-    void fdReadyToWrite(int fd);
-
 private:
     utils::FileDescriptor m_sock_fd;
     utils::FileDescriptor m_epoll_fd;
@@ -62,7 +59,6 @@ private:
 private:
     void create_epoll();
     void add_epoll(int fd, uint32_t events);
-    void modify_epoll(int fd, uint32_t events);
     void accept_clients();
     void handle_client(int fd, epoll_event event);
 };

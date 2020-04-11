@@ -145,18 +145,6 @@ void Server::run()
 }
 
 
-void Server::fdReadyToRead(int fd)
-{
-    modify_epoll(fd, EPOLLIN | EPOLLRDHUP);
-}
-
-
-void Server::fdReadyToWrite(int fd)
-{
-    modify_epoll(fd, EPOLLOUT);
-}
-
-
 void Server::create_epoll()
 {
     m_epoll_fd = epoll_create(1);
@@ -176,19 +164,6 @@ void Server::add_epoll(int fd, uint32_t events)
     if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, fd, &event) < 0)
     {
         throw ServerError("Error adding fd to epoll: ");
-    }
-}
-
-
-void Server::modify_epoll(int fd, uint32_t events)
-{
-    epoll_event event{};
-    event.data.fd = fd;
-    event.events = events;
-
-    if (epoll_ctl(m_epoll_fd, EPOLL_CTL_MOD, fd, &event) < 0)
-    {
-        throw ServerError("Error modifying fd events: ");
     }
 }
 
@@ -220,7 +195,7 @@ void Server::accept_clients()
 
         m_connections.emplace(std::piecewise_construct,
                               std::forward_as_tuple(conn_fd),
-                              std::forward_as_tuple(conn_fd, client_addr));
+                              std::forward_as_tuple(conn_fd, client_addr, m_epoll_fd));
 
         add_epoll(conn_fd, EPOLLIN | EPOLLRDHUP);
     }
