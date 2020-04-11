@@ -2,6 +2,27 @@
 #include "epoll_server/Exception.hpp"
 
 #include <iostream>
+#include <charconv>
+
+
+auto parse_args(char* argv[])
+{
+    std::string_view address(argv[1]);
+
+    uint16_t port{};
+    {
+        std::string_view sv(argv[2]);
+        std::from_chars(sv.data(), sv.data() + sv.size(), port);
+    }
+
+    int max_connect{};
+    {
+        std::string_view sv(argv[2]);
+        std::from_chars(sv.data(), sv.data() + sv.size(), max_connect);
+    }
+
+    return std::make_tuple<std::string>(argv[1], port, max_connect);
+}
 
 
 int main(int argc, char* argv[])
@@ -11,6 +32,8 @@ int main(int argc, char* argv[])
         std::cerr << "Usage: " << argv[0] << " <ipv4_address> <port> <max_connection_count>" << std::endl;
         return 1;
     }
+
+    auto&& [ address, port, max_connect ] = parse_args(argv);
 
     auto handler =
         [](es::Connection& conn){
@@ -56,7 +79,7 @@ int main(int argc, char* argv[])
             }
         };
 
-    es::Server server(argv[1], strtoul(argv[2], NULL, 10), atoi(argv[3]), handler);;
+    es::Server server(address, port, max_connect, handler);;
 
     try
     {
