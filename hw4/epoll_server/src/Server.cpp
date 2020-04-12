@@ -151,8 +151,6 @@ void Server::run()
                 handle_client(fd, events[i]);
             }
         }
-
-        close();
     }
 }
 
