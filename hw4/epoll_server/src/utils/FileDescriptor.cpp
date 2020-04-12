@@ -78,11 +78,7 @@ void FileDescriptor::close()
 
 int FileDescriptor::extract()
 {
-    int fd = m_fd;
-
-    m_fd = -1;
-
-    return fd;
+    return std::exchange(m_fd, -1);
 }
 
 
