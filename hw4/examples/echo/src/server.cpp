@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
             }
         };
 
-    es::Server server(address, port, max_connect, handler);;
+    es::Server server(address, port, max_connect, handler);
 
     try
     {
