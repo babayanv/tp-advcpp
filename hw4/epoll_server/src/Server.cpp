@@ -17,10 +17,18 @@ Server::Server(const std::string& address, uint16_t port, int max_connect, Callb
     : m_connections(max_connect)
     , m_do_handle_client(std::forward<Callback>(do_handle_client))
 {
-    open(address, port);
-    listen(max_connect);
-    create_epoll();
-    add_epoll(m_sock_fd, EPOLLIN | EPOLLET);
+    try
+    {
+        open(address, port);
+        listen(max_connect);
+        create_epoll();
+        add_epoll(m_sock_fd, EPOLLIN);
+    }
+    catch (const ServerError& se)
+    {
+        close();
+        throw se;
+    }
 }
 
 
@@ -90,7 +98,7 @@ void Server::open(uint16_t port)
 }
 
 
-void Server::listen(int max_connect)
+void Server::listen(int max_connect) const
 {
     if (::listen(m_sock_fd, max_connect) != 0)
     {
@@ -102,10 +110,11 @@ void Server::listen(int max_connect)
 void Server::close()
 {
     m_sock_fd.close();
+    m_epoll_fd.close();
 }
 
 
-bool Server::is_opened()
+bool Server::is_opened() const noexcept
 {
     return m_sock_fd.is_opened();
 }
@@ -142,6 +151,8 @@ void Server::run()
                 handle_client(fd, events[i]);
             }
         }
+
+        close();
     }
 }
 
@@ -156,7 +167,7 @@ void Server::create_epoll()
 }
 
 
-void Server::add_epoll(int fd, uint32_t events)
+void Server::add_epoll(int fd, uint32_t events) const
 {
     epoll_event event{};
     event.data.fd = fd;

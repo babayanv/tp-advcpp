@@ -41,10 +41,10 @@ public:
               Callback&& do_handle_client = [](Connection&){});
     void open(const std::string& address, uint16_t port);
     void open(uint16_t port);
-    void listen(int max_connect);
+    void listen(int max_connect) const;
     void close();
 
-    bool is_opened();
+    bool is_opened() const noexcept;
 
     void run();
 
@@ -57,7 +57,7 @@ private:
 
 private:
     void create_epoll();
-    void add_epoll(int fd, uint32_t events);
+    void add_epoll(int fd, uint32_t events) const;
     void accept_clients();
     void handle_client(int fd, epoll_event event);
 };

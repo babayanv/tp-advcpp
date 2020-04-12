@@ -14,13 +14,13 @@ namespace utils
 {
 
 
-FileDescriptor::FileDescriptor(int fd)
+FileDescriptor::FileDescriptor(int fd) noexcept
     : m_fd(fd)
 {
 }
 
 
-FileDescriptor::FileDescriptor(FileDescriptor&& other)
+FileDescriptor::FileDescriptor(FileDescriptor&& other) noexcept
     : m_fd(std::exchange(other.m_fd, -1))
 {
 }
@@ -49,7 +49,7 @@ FileDescriptor& FileDescriptor::operator=(int fd)
 }
 
 
-FileDescriptor::operator int() const
+FileDescriptor::operator int() const noexcept
 {
     return m_fd;
 }
@@ -82,7 +82,7 @@ int FileDescriptor::extract()
 }
 
 
-bool FileDescriptor::is_opened()
+bool FileDescriptor::is_opened() const noexcept
 {
     return m_fd != -1;
 }

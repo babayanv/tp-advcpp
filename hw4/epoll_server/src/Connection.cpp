@@ -69,8 +69,9 @@ Connection::Connection(int sock_fd, const sockaddr_in& sock_info, int epoll_fd)
 }
 
 
-Connection::Connection(Connection&& other)
-    : m_sock_fd(other.m_sock_fd.extract())
+Connection::Connection(Connection&& other) noexcept
+    : m_epoll_fd(std::exchange(other.m_epoll_fd, -1))
+    , m_sock_fd(other.m_sock_fd.extract())
     , m_dst_addr(std::move(other.m_dst_addr))
     , m_dst_port(std::exchange(other.m_dst_port, -1))
 {
@@ -81,6 +82,7 @@ Connection& Connection::operator=(Connection&& other)
 {
     close();
 
+    m_epoll_fd = std::exchange(other.m_epoll_fd, -1);
     m_sock_fd = other.m_sock_fd.extract();
     m_dst_addr = std::move(other.m_dst_addr);
     m_dst_port = std::exchange(other.m_dst_port, -1);
@@ -132,7 +134,7 @@ void Connection::close()
 }
 
 
-size_t Connection::write(const void* data, size_t len)
+size_t Connection::write(const void* data, size_t len) const
 {
     while (true)
     {
@@ -152,6 +154,25 @@ size_t Connection::write(const void* data, size_t len)
         }
 
         return bytes_written;
+    }
+}
+
+
+void Connection::write_exact(const void* data, size_t len) const
+{
+    size_t bytes_written_total = 0;
+
+    while (bytes_written_total != len)
+    {
+        const void* buff_begin = static_cast<const char*>(data) + bytes_written_total;
+
+        ssize_t bytes_written = write(buff_begin, len - bytes_written_total);
+        if (bytes_written == 0)
+        {
+            throw ConnectionError("Unable to write exactly " + std::to_string(len) + " bytes: ");
+        }
+
+        bytes_written_total += bytes_written;
     }
 }
 
@@ -179,26 +200,80 @@ size_t Connection::read(void* data, size_t len)
         if (bytes_read == 0)
         {
             close();
+            return 0;
         }
+
+        m_input_registry.emplace_back(static_cast<char*>(data), bytes_read);
 
         return bytes_read;
     }
 }
 
 
-const std::string& Connection::addr()
+size_t Connection::input_bytes() const noexcept
+{
+    size_t bytes{};
+
+    for (auto& i : m_input_registry)
+    {
+        bytes += i.size();
+    }
+
+    return bytes;
+}
+
+
+std::string Connection::input_cat() const
+{
+    std::string str;
+
+    for (auto& i : m_input_registry)
+    {
+        str += i;
+    }
+
+    return str;
+}
+
+
+void Connection::input_clear() noexcept
+{
+    m_input_registry.clear();
+}
+
+
+void Connection::read_exact(void* data, size_t len)
+{
+    size_t bytes_read_total = 0;
+
+    while (bytes_read_total < len)
+    {
+        void* buff_begin = static_cast<char*>(data) + bytes_read_total;
+
+        ssize_t bytes_read = read(buff_begin, len - bytes_read_total);
+        if (bytes_read == 0)
+        {
+            throw ConnectionError("Unable to read exactly " + std::to_string(len) + " bytes: ");
+        }
+
+        bytes_read_total += bytes_read;
+    }
+}
+
+
+const std::string& Connection::addr() const noexcept
 {
     return m_dst_addr;
 }
 
 
-uint16_t Connection::port()
+uint16_t Connection::port() const noexcept
 {
     return m_dst_port;
 }
 
 
-bool Connection::is_opened()
+bool Connection::is_opened() const noexcept
 {
     return m_sock_fd.is_opened();
 }
@@ -206,35 +281,41 @@ bool Connection::is_opened()
 
 void Connection::register_event(const epoll_event& event)
 {
-    m_events.emplace_front(event);
+    m_events_registry.emplace_front(event);
 }
 
 
-const Connection::EventsCont& Connection::events()
+const Connection::EventsRegistry& Connection::events() const noexcept
 {
-    return m_events;
+    return m_events_registry;
 }
 
 
-const epoll_event& Connection::recent_event()
+const epoll_event& Connection::recent_event() const noexcept
 {
-    return m_events.front();
+    return m_events_registry.front();
 }
 
 
-void Connection::setReadyToRead()
+const Connection::InputRegistry& Connection::input() const noexcept
+{
+    return m_input_registry;
+}
+
+
+void Connection::setReadyToRead() const
 {
     modify_epoll(EPOLLIN | EPOLLRDHUP);
 }
 
 
-void Connection::setReadyToWrite()
+void Connection::setReadyToWrite() const
 {
     modify_epoll(EPOLLOUT);
 }
 
 
-void Connection::modify_epoll(uint32_t events)
+void Connection::modify_epoll(uint32_t events) const
 {
     epoll_event event{};
     event.data.fd = m_sock_fd;

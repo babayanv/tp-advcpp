@@ -5,6 +5,9 @@
 #include <charconv>
 
 
+constexpr size_t MB = 1048576;
+
+
 auto parse_args(char* argv[])
 {
     std::string_view address(argv[1]);
@@ -54,28 +57,35 @@ int main(int argc, char* argv[])
 
             if (conn.recent_event().events & EPOLLIN)
             {
-                std::string msg(128, '\0');
-                if (conn.read(msg.data(), msg.size()) == 0)
+                std::string msg(MB - conn.input_bytes(), '\0');
+
+                try
                 {
+                    std::cout << "Received: " <<
+                        conn.read(msg.data(), msg.size()) <<
+                        " bytes" << std::endl;
+                }
+                catch(const es::ConnectionError& ce)
+                {
+                    std::cerr << ce.what() << std::endl;
+
+                    std::string_view err_msg(ce.what());
+                    std::cout << "Sent: " <<
+                        conn.write(err_msg.data(), err_msg.size()) <<
+                        " bytes" << std::endl;
+
                     return;
                 }
 
-                std::cout << "Received: " << msg << std::endl;
-
-                conn.setReadyToWrite();
-            }
-
-            if (conn.recent_event().events & EPOLLOUT)
-            {
-                const std::string msg("pong");
-                if (conn.write(msg.c_str(), msg.size()) == 0)
+                if (conn.input_bytes() == MB)
                 {
-                    return;
+                    std::string msg = conn.input_cat();
+                    std::cout << "Sent: " <<
+                        conn.write(msg.c_str(), msg.size()) <<
+                        " bytes" << std::endl;
+                    
+                    conn.input_clear();
                 }
-
-                std::cout << "Sent: " << msg << std::endl;
-
-                conn.setReadyToRead();
             }
         };
 

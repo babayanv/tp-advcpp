@@ -13,19 +13,19 @@ class FileDescriptor
 {
 public:
     FileDescriptor() = default;
-    FileDescriptor(int fd);
-    FileDescriptor(FileDescriptor&& other);
+    FileDescriptor(int fd) noexcept;
+    FileDescriptor(FileDescriptor&& other) noexcept;
     ~FileDescriptor() noexcept;
 
     FileDescriptor(const FileDescriptor& other) = delete;
 
     FileDescriptor& operator=(int fd);
 
-    operator int() const;
+    operator int() const noexcept;
     void close();
     int extract();
 
-    bool is_opened();
+    bool is_opened() const noexcept;
 
 private:
     int m_fd = -1;
