@@ -13,8 +13,9 @@ namespace es
 {
 
 
-Connection::Connection(const std::string& dst_addr, uint16_t dst_port)
-    : m_dst_addr(dst_addr)
+Connection::Connection(const std::string& dst_addr, uint16_t dst_port, int epoll_fd)
+    : m_epoll_fd(epoll_fd)
+    , m_dst_addr(dst_addr)
     , m_dst_port(dst_port)
 {
     open();
@@ -31,11 +32,31 @@ Connection::Connection(const std::string& dst_addr, uint16_t dst_port)
 }
 
 
+Connection::Connection(int sock_fd, int epoll_fd)
+    : m_epoll_fd(epoll_fd)
+    , m_sock_fd(sock_fd)
+    , m_dst_addr(15, '\0')
+{
+    sockaddr_in sock_info{};
+    socklen_t sock_len = sizeof(sock_info);
+    if (getsockname(m_sock_fd,
+                    reinterpret_cast<sockaddr*>(&sock_info),
+                    &sock_len) < 0)
+    {
+        close();
+        throw ConnectionError("Error getting socket info: ");
+    }
+
+    m_dst_addr = inet_ntoa(sock_info.sin_addr);
+    m_dst_port = ntohs(sock_info.sin_port);
+}
+
+
 Connection::Connection(int sock_fd, const sockaddr_in& sock_info, int epoll_fd)
     : m_epoll_fd(epoll_fd)
     , m_sock_fd(sock_fd)
     , m_dst_addr(15, '\0')
-    , m_dst_port(sock_info.sin_port)
+    , m_dst_port(ntohs(sock_info.sin_port))
 {
     if (inet_ntop(AF_INET,
                   &sock_info.sin_addr,

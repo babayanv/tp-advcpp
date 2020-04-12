@@ -19,7 +19,8 @@ class Connection
     using EventsCont = std::list<epoll_event>;
 
 public:
-    Connection(const std::string& dst_addr, uint16_t dst_port);
+    Connection(const std::string& dst_addr, uint16_t dst_port, int epoll_fd = -1);
+    Connection(int sock_fd, int epoll_fd = -1);
     Connection(int sock_fd, const sockaddr_in& sock_info, int epoll_fd = -1);
     Connection(Connection&& other);
     ~Connection() noexcept = default;
