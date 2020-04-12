@@ -14,7 +14,8 @@ namespace es
 
 
 Server::Server(const std::string& address, uint16_t port, int max_connect, Callback&& do_handle_client)
-    : m_do_handle_client(std::forward<Callback>(do_handle_client))
+    : m_connections(max_connect)
+    , m_do_handle_client(std::forward<Callback>(do_handle_client))
 {
     open(address, port);
     listen(max_connect);

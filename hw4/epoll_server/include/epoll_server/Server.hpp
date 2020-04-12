@@ -4,7 +4,7 @@
 #include "epoll_server/utils/FileDescriptor.hpp"
 #include "epoll_server/Connection.hpp"
 
-#include <map>
+#include <unordered_map>
 #include <functional>
 
 
@@ -15,10 +15,9 @@ namespace es
 class Server
 {
     using Callback = std::function<void(Connection&)>;
+    using ConnectionContainer = std::unordered_map<int, Connection>;
 
 public:
-    Server() = default;
-
     Server(const std::string& address, uint16_t port,
            int max_connect = 0,
            Callback&& do_handle_client = [](Connection&){});
@@ -52,7 +51,7 @@ public:
 private:
     utils::FileDescriptor m_sock_fd;
     utils::FileDescriptor m_epoll_fd;
-    std::map<int, Connection> m_connections;
+    ConnectionContainer m_connections;
 
     Callback m_do_handle_client;
 
