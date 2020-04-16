@@ -12,10 +12,6 @@ set(EPOLL_SERVER_LIB_SRCS
 
 add_library(${PROJECT_NAME} STATIC ${EPOLL_SERVER_LIB_SRCS})
 
-target_link_libraries(${PROJECT_NAME}
-    ${LOG_LIB_NAME}
-)
-
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         "${PROJECT_SOURCE_DIR}/include"
