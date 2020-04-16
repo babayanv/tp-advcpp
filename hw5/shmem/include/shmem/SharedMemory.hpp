@@ -68,10 +68,7 @@ public:
     }
 
 
-    ~SharedMemory()
-    {
-        // tf do i do here???
-    }
+    ~SharedMemory() = default;
 
 
     SharedMemory& operator=(SharedMemory&& other)
@@ -107,7 +104,6 @@ public:
     template <class T>
     void free(T* dst, size_t count = 1)
     {
-        dump<ptrdiff_t>(std::cout);
         if (reinterpret_cast<boundary_ptr>(dst) < m_shmem_ptr.get() ||
             reinterpret_cast<boundary_ptr>(dst) >= unused_memory_begin())
         {
@@ -161,7 +157,6 @@ public:
            << std::setw(60) << ""
            << std::setfill(' ') << std::endl;
 
-        size_t num = 0;
         for (auto i = m_shmem_ptr.get(); i < unused_memory_end(); i += Step)
         {
             T* ptr = reinterpret_cast<T*>(i);
@@ -170,8 +165,6 @@ public:
                << std::setw(8) << i - m_shmem_ptr.get() << " | "
                << std::setw(16) << ptr << " | "
                << std::setw(16) << *ptr << std::endl;
-
-            num += Step;
         }
 
         os << std::setfill('-')
