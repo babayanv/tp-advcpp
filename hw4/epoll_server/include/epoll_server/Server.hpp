@@ -20,11 +20,11 @@ class Server
 public:
     Server(const std::string& address, uint16_t port,
            int max_connect = 0,
-           Callback&& do_handle_client = [](Connection&){});
+           const Callback& do_handle_client = [](Connection&){});
 
     Server(uint16_t port,
            int max_connect = 0,
-           Callback&& do_handle_client = [](Connection&){});
+           const Callback& do_handle_client = [](Connection&){});
 
     ~Server() noexcept = default;
 
@@ -35,10 +35,10 @@ public:
 
     void init(const std::string& address, uint16_t port,
               int max_connect = 0,
-              Callback&& do_handle_client = [](Connection&){});
+              const Callback& do_handle_client = [](Connection&){});
     void init(uint16_t port,
               int max_connect = 0,
-              Callback&& do_handle_client = [](Connection&){});
+              const Callback& do_handle_client = [](Connection&){});
     void open(const std::string& address, uint16_t port);
     void open(uint16_t port);
     void listen(int max_connect) const;
