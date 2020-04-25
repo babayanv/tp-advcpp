@@ -47,12 +47,9 @@ public:
     }
 
 
-    void destroy()
+    void destroy() noexcept
     {
-        if (::sem_destroy(&m_semaphore) < 0)
-        {
-            throw SemaphoreError("Semaphore destroy error: ");
-        }
+        ::sem_destroy(&m_semaphore);
     }
 
 
