@@ -49,12 +49,12 @@ class SharedMemory : utils::bridge::NonCopyable
 
 public:
     SharedMemory(std::size_t page_count = 1)
-        : m_shmem_ptr(make_shmem<byte_type>(page_count * ::sysconf(_SC_PAGE_SIZE)))
-        , m_unused_memory_begin_ptr(
-            new (m_shmem_ptr.get()) boundary_ptr(m_shmem_ptr.get() + 2 * sizeof(boundary_ptr)))
-        , m_unused_memory_end_ptr(
-            new (m_shmem_ptr.get() + sizeof(boundary_ptr)) boundary_ptr(m_shmem_ptr.get() + page_count * ::sysconf(_SC_PAGE_SIZE)))
     {
+        size_t page_size = static_cast<size_t>(::sysconf(_SC_PAGE_SIZE));
+
+        m_shmem_ptr = make_shmem<byte_type>(page_count * page_size);
+        m_unused_memory_begin_ptr = new (m_shmem_ptr.get()) boundary_ptr(m_shmem_ptr.get() + 2 * sizeof(boundary_ptr));
+        m_unused_memory_end_ptr = new (m_shmem_ptr.get() + sizeof(boundary_ptr)) boundary_ptr(m_shmem_ptr.get() + page_count * page_size);
     }
 
 
