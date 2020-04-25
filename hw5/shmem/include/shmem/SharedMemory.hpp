@@ -47,21 +47,27 @@ class SharedMemory : utils::bridge::NonCopyable
     using byte_type = std::byte;
     using boundary_ptr = byte_type*;
 
+    struct boundaries {
+        boundary_ptr m_begin;
+        boundary_ptr m_end;
+    };
+
 public:
     SharedMemory(std::size_t page_count = 1)
     {
-        size_t page_size = static_cast<size_t>(::sysconf(_SC_PAGE_SIZE));
+        auto page_size = static_cast<size_t>(::sysconf(_SC_PAGE_SIZE));
 
         m_shmem_ptr = make_shmem<byte_type>(page_count * page_size);
-        m_unused_memory_begin_ptr = new (m_shmem_ptr.get()) boundary_ptr(m_shmem_ptr.get() + 2 * sizeof(boundary_ptr));
-        m_unused_memory_end_ptr = new (m_shmem_ptr.get() + sizeof(boundary_ptr)) boundary_ptr(m_shmem_ptr.get() + page_count * page_size);
+        m_boundaries = new (m_shmem_ptr.get()) boundaries{
+            m_shmem_ptr.get() + sizeof(boundaries),
+            m_shmem_ptr.get() + page_count * page_size
+        };
     }
 
 
     SharedMemory(SharedMemory&& other)
         : m_shmem_ptr(std::move(other.m_shmem_ptr))
-        , m_unused_memory_begin_ptr(std::exchange(other.m_unused_memory_begin_ptr, nullptr))
-        , m_unused_memory_end_ptr(std::exchange(other.m_unused_memory_end_ptr, nullptr))
+        , m_boundaries(std::exchange(other.m_boundaries, nullptr))
     {
     }
 
@@ -72,8 +78,7 @@ public:
     SharedMemory& operator=(SharedMemory&& other)
     {
         m_shmem_ptr = std::move(other.m_shmem_ptr);
-        m_unused_memory_begin_ptr = std::exchange(other.m_unused_memory_begin_ptr, nullptr);
-        m_unused_memory_end_ptr = std::exchange(other.m_unused_memory_end_ptr, nullptr);
+        m_boundaries = std::exchange(other.m_boundaries, nullptr);
 
         return *this;
     }
@@ -82,17 +87,17 @@ public:
     template <class T = byte_type, class... Args>
     T* store(std::size_t count = 1, Args&&... args)
     {
-        if (unused_memory_begin() + count * sizeof(T) >= unused_memory_end())
+        if (m_boundaries->m_begin + count * sizeof(T) >= m_boundaries->m_end)
         {
             throw std::bad_alloc();
         }
 
-        boundary_ptr location = unused_memory_begin();
+        boundary_ptr location = m_boundaries->m_begin;
 
         for (size_t i = 0; i < count; ++i)
         {
-            new (unused_memory_begin()) T(std::forward<Args>(args)...);
-            unused_memory_begin() += sizeof(T);
+            new (m_boundaries->m_begin) T(std::forward<Args>(args)...);
+            m_boundaries->m_begin += sizeof(T);
         }
 
         return reinterpret_cast<T*>(location);
@@ -103,14 +108,14 @@ public:
     void free(T* dst, size_t count = 1)
     {
         if (reinterpret_cast<boundary_ptr>(dst) < m_shmem_ptr.get() ||
-            reinterpret_cast<boundary_ptr>(dst) >= unused_memory_begin())
+            reinterpret_cast<boundary_ptr>(dst) >= m_boundaries->m_begin)
         {
-            throw ShmemInvalidArgument("dst is outside of reserved shared memory bounds", dst, unused_memory_begin(), unused_memory_end());
+            throw ShmemInvalidArgument("dst is outside of reserved shared memory bounds", dst, m_boundaries->m_begin, m_boundaries->m_end);
         }
 
-        if (reinterpret_cast<boundary_ptr>(dst + count) >= unused_memory_end())
+        if (reinterpret_cast<boundary_ptr>(dst + count) >= m_boundaries->m_end)
         {
-            throw ShmemInvalidArgument("count makes dst block step outside shared memory bounds", count, unused_memory_end());
+            throw ShmemInvalidArgument("count makes dst block step outside shared memory bounds", count, m_boundaries->m_end);
         }
 
         T* end_of_destroyed_data = dst;
@@ -130,7 +135,7 @@ public:
     template <class T = byte_type>
     T* get(std::ptrdiff_t offset)
     {
-        if (m_shmem_ptr.get() + offset >= unused_memory_end())
+        if (m_shmem_ptr.get() + offset >= m_boundaries->m_end)
         {
             throw ShmemInvalidArgument("Unable to get data - offset is too big", offset);
         }
@@ -155,11 +160,11 @@ public:
            << std::setw(60) << ""
            << std::setfill(' ') << std::endl;
 
-        for (auto i = m_shmem_ptr.get(); i < unused_memory_end(); i += Step)
+        for (auto i = m_shmem_ptr.get(); i < m_boundaries->m_end; i += Step)
         {
             T* ptr = reinterpret_cast<T*>(i);
 
-            os << std::setw(10) << (i >= unused_memory_begin() ? "UNUSED" : "RESERVED") << " | "
+            os << std::setw(10) << (i >= m_boundaries->m_begin ? "UNUSED" : "RESERVED") << " | "
                << std::setw(8) << i - m_shmem_ptr.get() << " | "
                << std::setw(16) << ptr << " | "
                << std::setw(16) << *ptr << std::endl;
@@ -172,20 +177,9 @@ public:
 
 private:
     ShmemPtr<byte_type> m_shmem_ptr;
-    boundary_ptr* m_unused_memory_begin_ptr;
-    boundary_ptr* m_unused_memory_end_ptr;
+    boundaries* m_boundaries;
 
 private:
-    boundary_ptr& unused_memory_begin()
-    {
-        return *m_unused_memory_begin_ptr;
-    }
-
-    const boundary_ptr& unused_memory_end()
-    {
-        return *m_unused_memory_end_ptr;
-    }
-
     template <class T,
               typename std::enable_if_t<std::is_trivially_move_assignable_v<T>, int> = 0
     >
@@ -193,9 +187,9 @@ private:
     {
         std::memmove(reinterpret_cast<boundary_ptr>(begin),
                      reinterpret_cast<boundary_ptr>(end),
-                     unused_memory_end() - reinterpret_cast<boundary_ptr>(end));
+                     m_boundaries->m_end - reinterpret_cast<boundary_ptr>(end));
 
-        unused_memory_begin() = reinterpret_cast<boundary_ptr>(end);
+        m_boundaries->m_begin = reinterpret_cast<boundary_ptr>(end);
     }
 
     template <class T,
@@ -205,14 +199,14 @@ private:
     {
         ptrdiff_t count = end - begin;
 
-        while (reinterpret_cast<boundary_ptr>(end) < unused_memory_end())
+        while (reinterpret_cast<boundary_ptr>(end) < m_boundaries->m_end)
         {
             *begin = std::move(*end);
             ++begin;
             ++end;
         }
 
-        unused_memory_begin() -= count * sizeof(T);
+        m_boundaries->m_begin -= count * sizeof(T);
     }
 };
 
