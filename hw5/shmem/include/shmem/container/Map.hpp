@@ -10,7 +10,7 @@
 namespace shmem
 {
 
-template <class Key, class T, uint AccessorsCount = 1, class Compare = std::less<Key>>
+template <class Key, class T, class Compare = std::less<Key>>
 class Map
 {
     using key_type = Key;
@@ -29,7 +29,7 @@ class Map
 public:
     Map()
     {
-        m_semaphore_ptr = m_shmem.store<semaphore_type>(1, AccessorsCount);
+        m_semaphore_ptr = m_shmem.store<semaphore_type>(1, 1);
 
         allocator_type alloc(&m_shmem);
 

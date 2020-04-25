@@ -8,7 +8,7 @@
 
 int main()
 {
-    shmem::Map<std::string, std::string, 2> map;
+    shmem::Map<std::string, std::string> map;
 
     int pid = fork();
 
