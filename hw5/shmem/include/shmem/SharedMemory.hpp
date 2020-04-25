@@ -34,7 +34,7 @@ ShmemPtr<T> make_shmem(size_t count = 1)
     }
 
     return {
-        reinterpret_cast<T*>(mmap_ptr),
+        static_cast<T*>(mmap_ptr),
         [count](T* t){
             ::munmap(t, sizeof(T) * count);
         }
