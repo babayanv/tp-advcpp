@@ -21,10 +21,6 @@ public:
     {
     }
 
-    constexpr LinearAllocator(const LinearAllocator<value_type>& other)
-        : m_shmem(other.m_shmem)
-    {
-    }
 
     template <class U>
     constexpr LinearAllocator(const LinearAllocator<U>& other)
