@@ -18,7 +18,7 @@ namespace utils
 class Semaphore : bridge::NonCopyable
 {
 public:
-    constexpr Semaphore(uint accessors_count = 1)
+    Semaphore(uint accessors_count = 1)
         : m_semaphore{}
     {
         init(accessors_count);
