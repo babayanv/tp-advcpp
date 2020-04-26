@@ -32,12 +32,12 @@ public:
 
     value_type* allocate(std::size_t count)
     {
-        return m_shmem->store<value_type>(count);
+        return m_shmem->allocate<value_type>(count);
     }
 
     void deallocate(value_type* ptr, std::size_t count)
     {
-        m_shmem->free(ptr, count);
+        m_shmem->deallocate(ptr, count);
     }
 
 public:

@@ -84,8 +84,8 @@ public:
     }
 
 
-    template <class T = byte_type, class... Args>
-    T* store(std::size_t count = 1, Args&&... args)
+    template <class T = byte_type>
+    T* allocate(std::size_t count = 1)
     {
         if (m_boundaries->m_begin + count * sizeof(T) >= m_boundaries->m_end)
         {
@@ -94,18 +94,14 @@ public:
 
         boundary_ptr location = m_boundaries->m_begin;
 
-        for (size_t i = 0; i < count; ++i)
-        {
-            new (m_boundaries->m_begin) T(std::forward<Args>(args)...);
-            m_boundaries->m_begin += sizeof(T);
-        }
+        m_boundaries->m_begin += sizeof(T) * count;
 
         return reinterpret_cast<T*>(location);
     }
 
 
     template <class T>
-    void free(T* dst, size_t count = 1)
+    void deallocate(T* dst, size_t count = 1)
     {
         if (reinterpret_cast<boundary_ptr>(dst) < m_shmem_ptr.get() ||
             reinterpret_cast<boundary_ptr>(dst) >= m_boundaries->m_begin)
@@ -119,14 +115,8 @@ public:
         }
 
         T* end_of_destroyed_data = dst;
-        for (size_t i = 0; i < count; ++i)
-        {
-            if (!std::is_trivially_destructible_v<T>)
-            {
-                end_of_destroyed_data->~T();
-            }
-            ++end_of_destroyed_data;
-        }
+
+        end_of_destroyed_data += count;
 
         remove_data(dst, end_of_destroyed_data);
     }

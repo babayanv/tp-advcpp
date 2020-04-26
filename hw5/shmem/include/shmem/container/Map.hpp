@@ -29,12 +29,15 @@ class Map
 public:
     Map()
     {
-        m_semaphore_ptr = m_shmem.store<semaphore_type>(1, 1);
+        m_semaphore_ptr = m_shmem.allocate<semaphore_type>();
+        new (m_semaphore_ptr) utils::Semaphore();
 
         allocator_type alloc(&m_shmem);
 
-        m_map_ptr = m_shmem.store<internal_map_type>(1, std::move(alloc));
+        m_map_ptr = m_shmem.allocate<internal_map_type>();
+        new (m_map_ptr) internal_map_type(std::move(alloc));
     }
+
 
     ~Map() = default;
 
