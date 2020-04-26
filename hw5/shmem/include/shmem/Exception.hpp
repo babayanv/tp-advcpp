@@ -6,6 +6,7 @@
 #include <exception>
 #include <string>
 #include <sstream>
+#include <utility>
 
 
 namespace shmem
@@ -20,15 +21,15 @@ public:
     {
     }
 
-    explicit ErrnoException(const std::string& what_arg)
-        : m_msg(what_arg)
+    explicit ErrnoException(std::string  what_arg)
+        : m_msg(std::move(what_arg))
     {
         m_msg += std::strerror(errno);
     }
 
-    virtual ~ErrnoException() noexcept = default;
+    ~ErrnoException() noexcept override = default;
 
-    const char* what() const noexcept override
+    [[nodiscard]] const char* what() const noexcept override
     {
         return m_msg.c_str();
     }
@@ -42,7 +43,7 @@ class SemaphoreError : public ErrnoException
 {
 public:
     SemaphoreError() = default;
-    SemaphoreError(const std::string& what_arg) : ErrnoException(what_arg) {}
+    explicit SemaphoreError(const std::string& what_arg) : ErrnoException(what_arg) {}
 };
 
 
@@ -50,17 +51,15 @@ class ShmemError : public ErrnoException
 {
 public:
     ShmemError() = default;
-    ShmemError(const std::string& what_arg) : ErrnoException(what_arg) {}
+    explicit ShmemError(const std::string& what_arg) : ErrnoException(what_arg) {}
 };
 
 
 class ShmemInvalidArgument : public std::invalid_argument
 {
 public:
-    ShmemInvalidArgument() = default;
-
     template <class... T>
-    ShmemInvalidArgument(const std::string& what_arg, T&&... args)
+    explicit ShmemInvalidArgument(const std::string& what_arg, T&&... args)
         : invalid_argument(create_message(what_arg, std::forward<T>(args)...))
     {
     }

@@ -2,29 +2,20 @@
 #define SHMEM_UTILS_BRIDGES_NONCOPYABLE_HPP
 
 
-namespace shmem
-{
-
-namespace utils
-{
-
-namespace bridge
+namespace shmem::utils::bridge
 {
 
 class NonCopyable
 {
 public:
     NonCopyable() = default;
+    NonCopyable(const NonCopyable& other) = delete;
+
+    NonCopyable& operator=(const NonCopyable& other) = delete;
+
     virtual ~NonCopyable() noexcept = default;
 
-private:
-    NonCopyable(const NonCopyable& other) = delete;
-    NonCopyable& operator=(const NonCopyable& other) = delete;
 };
-
-} // namespace bridge
-
-} // namespace utils
 
 } // namespace shmem
 

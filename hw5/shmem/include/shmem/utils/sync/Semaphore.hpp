@@ -9,23 +9,20 @@
 #include <iostream>
 
 
-namespace shmem
-{
-
-namespace utils
+namespace shmem::utils
 {
 
 class Semaphore : bridge::NonCopyable
 {
 public:
-    Semaphore(uint accessors_count = 1)
+    explicit Semaphore(uint accessors_count = 1)
         : m_semaphore{}
     {
         init(accessors_count);
     }
 
 
-    ~Semaphore() noexcept
+    ~Semaphore() noexcept override
     {
         try
         {
@@ -86,7 +83,7 @@ private:
 class SemaphoreLock
 {
 public:
-    SemaphoreLock(Semaphore& sem)
+    explicit SemaphoreLock(Semaphore& sem)
         : m_sem(sem)
     {
         m_sem.acquire();
@@ -100,8 +97,6 @@ public:
 private:
     Semaphore& m_sem;
 };
-
-} // namespace utils
 
 } // namespace shmem
 

@@ -3,10 +3,7 @@
 
 #include "shmem/SharedMemory.hpp"
 
-namespace shmem
-{
-
-namespace allocator
+namespace shmem::allocator
 {
 
 template <class T>
@@ -16,14 +13,14 @@ public:
     using value_type = T;
 
 public:
-    constexpr LinearAllocator(SharedMemory* shmem)
+    constexpr explicit LinearAllocator(SharedMemory* shmem)
         : m_shmem(shmem)
     {
     }
 
 
     template <class U>
-    constexpr LinearAllocator(const LinearAllocator<U>& other)
+    constexpr explicit LinearAllocator(const LinearAllocator<U>& other)
         : m_shmem(other.m_shmem)
     {
     }
@@ -43,8 +40,6 @@ public:
 public:
     SharedMemory* m_shmem;
 };
-
-} // namespace allocator
 
 } // namespace shmem
 

@@ -53,7 +53,7 @@ class SharedMemory : utils::bridge::NonCopyable
     };
 
 public:
-    SharedMemory(std::size_t page_count = 1)
+    explicit SharedMemory(std::size_t page_count = 1)
     {
         auto page_size = static_cast<size_t>(::sysconf(_SC_PAGE_SIZE));
 
@@ -65,17 +65,17 @@ public:
     }
 
 
-    SharedMemory(SharedMemory&& other)
+    SharedMemory(SharedMemory&& other) noexcept
         : m_shmem_ptr(std::move(other.m_shmem_ptr))
         , m_boundaries(std::exchange(other.m_boundaries, nullptr))
     {
     }
 
 
-    ~SharedMemory() = default;
+    ~SharedMemory() override = default;
 
 
-    SharedMemory& operator=(SharedMemory&& other)
+    SharedMemory& operator=(SharedMemory&& other) noexcept
     {
         m_shmem_ptr = std::move(other.m_shmem_ptr);
         m_boundaries = std::exchange(other.m_boundaries, nullptr);

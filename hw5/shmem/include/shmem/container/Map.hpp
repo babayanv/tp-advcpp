@@ -21,7 +21,7 @@ class Map
     using semaphore_type = utils::Semaphore;
     using internal_map_type = std::map<key_type,
                                        mapped_type,
-                                       std::less<key_type>,
+                                       Compare,
                                        allocator_type>;
     using iterator = typename internal_map_type::iterator;
     using const_iterator = typename internal_map_type::const_iterator;
