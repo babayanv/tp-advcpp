@@ -47,6 +47,8 @@ class SharedMemory : utils::bridge::NonCopyable
     using byte_type = std::byte;
     using boundary_ptr = byte_type*;
 
+    using shmem_ptr_type = ShmemPtr<byte_type>;
+
     struct boundaries {
         boundary_ptr m_begin;
         boundary_ptr m_end;
@@ -166,7 +168,7 @@ public:
     }
 
 private:
-    ShmemPtr<byte_type> m_shmem_ptr;
+    shmem_ptr_type m_shmem_ptr;
     boundaries* m_boundaries;
 
 private:

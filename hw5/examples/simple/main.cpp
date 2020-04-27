@@ -1,39 +1,50 @@
 #include "shmem/container/Map.hpp"
+#include "shmem/Type.hpp"
+
 
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include <string>
-
 
 int main()
 {
-    shmem::Map<std::string, std::string> map;
+    shmem::SharedMemory shmem;
+    shmem::Map<shmem::String, shmem::String> map(shmem);
 
     int pid = fork();
 
     if (pid != 0)
     {
-        map.emplace("0", "zero");
-        map.emplace("2", "two");
-        map.emplace("4", "four");
-        map.emplace("6", "six");
-        map.emplace("8", "eight");
+        shmem::StringAllocator alloc(shmem);
+        map.emplace(std::piecewise_construct,
+                    std::forward_as_tuple("0", alloc),
+                    std::forward_as_tuple("zero", alloc));
+        map.emplace(std::piecewise_construct,
+                    std::forward_as_tuple("2", alloc),
+                    std::forward_as_tuple("two", alloc));
+        map.emplace(std::piecewise_construct,
+                    std::forward_as_tuple("4", alloc),
+                    std::forward_as_tuple("four", alloc));
     }
     else
     {
-        map.emplace("1", "one");
-        map.emplace("3", "three");
-        map.emplace("5", "five");
-        map.emplace("7", "seven");
-        map.emplace("9", "nine");
+        shmem::StringAllocator alloc(shmem);
+        map.emplace(std::piecewise_construct,
+                    std::forward_as_tuple("1", alloc),
+                    std::forward_as_tuple("one", alloc));
+        map.emplace(std::piecewise_construct,
+                    std::forward_as_tuple("3", alloc),
+                    std::forward_as_tuple("three", alloc));
+        map.emplace(std::piecewise_construct,
+                    std::forward_as_tuple(1024, 'a', alloc),
+                    std::forward_as_tuple(1024, 'b', alloc));
 
         return 0;
     }
 
     waitpid(pid, nullptr, 0);
 
-    for (auto i : map)
+    for (const auto& i : map)
     {
         std::cout << i.first << ' ' << i.second << std::endl;
     }

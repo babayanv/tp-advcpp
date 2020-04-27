@@ -13,7 +13,7 @@ public:
     using value_type = T;
 
 public:
-    constexpr explicit LinearAllocator(SharedMemory* shmem)
+    constexpr explicit LinearAllocator(SharedMemory& shmem)
         : m_shmem(shmem)
     {
     }
@@ -29,16 +29,16 @@ public:
 
     value_type* allocate(std::size_t count)
     {
-        return m_shmem->allocate<value_type>(count);
+        return m_shmem.allocate<value_type>(count);
     }
 
     void deallocate(value_type* ptr, std::size_t count)
     {
-        m_shmem->deallocate(ptr, count);
+        m_shmem.deallocate(ptr, count);
     }
 
 public:
-    SharedMemory* m_shmem;
+    SharedMemory& m_shmem;
 };
 
 } // namespace shmem

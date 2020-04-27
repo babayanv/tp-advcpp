@@ -3,16 +3,22 @@
 
 #include "shmem/allocator/LinearAllocator.hpp"
 #include "shmem/utils/sync/Semaphore.hpp"
+#include "shmem/Type.hpp"
 
 #include <map>
+
+#include <tuple>
+#include <utility>
 
 
 namespace shmem
 {
 
+
 template <class Key, class T, class Compare = std::less<Key>>
 class Map
 {
+public:
     using key_type = Key;
     using mapped_type = T;
     using value_type = std::pair<const key_type, mapped_type>;
@@ -27,17 +33,17 @@ class Map
     using const_iterator = typename internal_map_type::const_iterator;
 
 public:
-    Map()
+    explicit Map(SharedMemory& shmem)
+        : m_shmem(shmem)
     {
         m_semaphore_ptr = m_shmem.allocate<semaphore_type>();
         new (m_semaphore_ptr) utils::Semaphore();
 
-        allocator_type alloc(&m_shmem);
+        allocator_type alloc(m_shmem);
 
         m_map_ptr = m_shmem.allocate<internal_map_type>();
         new (m_map_ptr) internal_map_type(std::move(alloc));
     }
-
 
     ~Map() = default;
 
@@ -122,8 +128,8 @@ public:
         return m_map_ptr->erase(key);
     }
 
-private:
-    SharedMemory m_shmem;
+protected:
+    SharedMemory& m_shmem;
     semaphore_type* m_semaphore_ptr;
     internal_map_type* m_map_ptr;
 };

@@ -12,6 +12,7 @@ set(SHMEM_LIB_SRCS
 
     "${PROJECT_SOURCE_DIR}/include/shmem/Exception.hpp"
     "${PROJECT_SOURCE_DIR}/include/shmem/SharedMemory.hpp"
+    "${PROJECT_SOURCE_DIR}/include/shmem/Type.hpp"
 )
 
 find_package (Threads)
