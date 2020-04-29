@@ -49,5 +49,8 @@ int main()
         std::cout << i.first << ' ' << i.second << std::endl;
     }
 
+    map.destroy();
+    shmem.destroy();
+
     return 0;
 }
