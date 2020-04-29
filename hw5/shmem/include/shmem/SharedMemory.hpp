@@ -3,6 +3,7 @@
 
 #include "shmem/Exception.hpp"
 #include "shmem/utils/bridge/NonCopyable.hpp"
+#include "shmem/utils/sync/Semaphore.hpp"
 
 #include <sys/mman.h>
 #include <unistd.h>
@@ -46,8 +47,8 @@ class SharedMemory : utils::bridge::NonCopyable
 {
     using byte_type = std::byte;
     using boundary_ptr = byte_type*;
-
-    using shmem_ptr_type = ShmemPtr<byte_type>;
+    using shmem_ptr = ShmemPtr<byte_type>;
+    using semaphore_type = utils::Semaphore;
 
     struct boundaries {
         boundary_ptr m_begin;
@@ -61,20 +62,29 @@ public:
 
         m_shmem_ptr = make_shmem<byte_type>(page_count * page_size);
         m_boundaries = new (m_shmem_ptr.get()) boundaries{
-            m_shmem_ptr.get() + sizeof(boundaries),
+            m_shmem_ptr.get() + sizeof(boundaries) + sizeof(semaphore_type),
             m_shmem_ptr.get() + page_count * page_size
         };
+
+        m_semaphore_ptr = new (m_shmem_ptr.get() + sizeof(boundaries)) utils::Semaphore();
     }
 
 
     SharedMemory(SharedMemory&& other) noexcept
         : m_shmem_ptr(std::move(other.m_shmem_ptr))
         , m_boundaries(std::exchange(other.m_boundaries, nullptr))
+        , m_semaphore_ptr(std::exchange(other.m_semaphore_ptr, nullptr))
     {
     }
 
 
     ~SharedMemory() override = default;
+
+
+    void destroy()
+    {
+        m_semaphore_ptr->destroy();
+    }
 
 
     SharedMemory& operator=(SharedMemory&& other) noexcept
@@ -93,6 +103,8 @@ public:
         {
             throw std::bad_alloc();
         }
+
+        utils::SemaphoreLock lock(*m_semaphore_ptr);
 
         boundary_ptr location = m_boundaries->m_begin;
 
@@ -116,6 +128,8 @@ public:
             throw ShmemInvalidArgument("count makes dst block step outside shared memory bounds", count, m_boundaries->m_end);
         }
 
+        utils::SemaphoreLock lock(*m_semaphore_ptr);
+
         T* end_of_destroyed_data = dst;
 
         end_of_destroyed_data += count;
@@ -131,6 +145,8 @@ public:
         {
             throw ShmemInvalidArgument("Unable to get data - offset is too big", offset);
         }
+
+        utils::SemaphoreLock lock(*m_semaphore_ptr);
 
         return reinterpret_cast<T*>(m_shmem_ptr.get() + offset);
     }
@@ -168,7 +184,7 @@ public:
     }
 
 private:
-    shmem_ptr_type m_shmem_ptr;
+    shmem_ptr m_shmem_ptr;
     boundaries* m_boundaries;
 
 private:
@@ -200,6 +216,7 @@ private:
 
         m_boundaries->m_begin -= count * sizeof(T);
     }
+    semaphore_type* m_semaphore_ptr;
 };
 
 } // namespace shmem
