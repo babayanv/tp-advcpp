@@ -47,6 +47,15 @@ public:
 
     ~Map() = default;
 
+    void destroy()
+    {
+        m_map_ptr->~internal_map_type();
+        m_shmem.deallocate(m_map_ptr);
+
+        m_semaphore_ptr->destroy();
+        m_shmem.deallocate(m_semaphore_ptr);
+    }
+
 
 // Element access
     auto& at(const key_type& key)
