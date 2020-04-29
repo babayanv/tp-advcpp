@@ -133,8 +133,6 @@ public:
         T* end_of_destroyed_data = dst;
 
         end_of_destroyed_data += count;
-
-        remove_data(dst, end_of_destroyed_data);
     }
 
 
@@ -186,36 +184,6 @@ public:
 private:
     shmem_ptr m_shmem_ptr;
     boundaries* m_boundaries;
-
-private:
-    template <class T,
-              typename std::enable_if_t<std::is_trivially_move_assignable_v<T>, int> = 0
-    >
-    void remove_data(T* begin, T* end)
-    {
-        std::memmove(reinterpret_cast<boundary_ptr>(begin),
-                     reinterpret_cast<boundary_ptr>(end),
-                     m_boundaries->m_end - reinterpret_cast<boundary_ptr>(end));
-
-        m_boundaries->m_begin = reinterpret_cast<boundary_ptr>(end);
-    }
-
-    template <class T,
-              typename std::enable_if_t<!std::is_trivially_move_assignable_v<T>, int> = 0
-    >
-    void remove_data(T* begin, T* end)
-    {
-        ptrdiff_t count = end - begin;
-
-        while (reinterpret_cast<boundary_ptr>(end) < m_boundaries->m_end)
-        {
-            *begin = std::move(*end);
-            ++begin;
-            ++end;
-        }
-
-        m_boundaries->m_begin -= count * sizeof(T);
-    }
     semaphore_type* m_semaphore_ptr;
 };
 
