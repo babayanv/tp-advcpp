@@ -22,17 +22,7 @@ public:
     }
 
 
-    ~Semaphore() noexcept override
-    {
-        try
-        {
-            destroy();
-        }
-        catch(const SemaphoreError& se)
-        {
-            std::cerr << se.what() << std::endl;
-        }
-    }
+    ~Semaphore() override = default;
 
 
     void init(uint accessors_count = 0)
@@ -44,9 +34,12 @@ public:
     }
 
 
-    void destroy() noexcept
+    void destroy()
     {
-        ::sem_destroy(&m_semaphore);
+        if (::sem_destroy(&m_semaphore) < 0)
+        {
+            throw SemaphoreError("Semaphore destroy error: ");
+        }
     }
 
 
