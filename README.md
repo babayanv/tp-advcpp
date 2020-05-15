@@ -7,3 +7,4 @@
   - [hw3](hw3). tcp
   - [hw4](hw4). epoll_server
   - [hw5](hw5). shmem
+  - [hw6](hw6). http_server
