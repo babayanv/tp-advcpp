@@ -14,6 +14,7 @@ set(HTTP_LIB_SRCS
     "${PROJECT_SOURCE_DIR}/src/server/server_worker.cpp"
 
     "${PROJECT_SOURCE_DIR}/src/errors.cpp"
+    "${PROJECT_SOURCE_DIR}/src/signal.cpp"
 )
 
 find_package (Threads)
