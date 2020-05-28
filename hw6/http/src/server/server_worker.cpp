@@ -135,7 +135,8 @@ void ServerWorker::handle_client(int fd, epoll_event event)
 
         network::send_response(conn, response);
 
-        if (request.headers.find("Connection")->second != "keep-alive")
+        auto elem = request.headers.find("Connection");
+        if (elem == request.headers.end() || elem->second != "Keep-Alive")
         {
             break;
         }
