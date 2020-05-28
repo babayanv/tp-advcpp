@@ -2,6 +2,7 @@
 #include "my_server.hpp"
 
 #include "http/errors.hpp"
+#include "http/signal.hpp"
 #include "log/Logger.hpp"
 #include "log/loggers/StderrLogger.hpp"
 
@@ -23,6 +24,10 @@ int main(int argc, char* argv[])
         log::init(log::create_stderr_logger(log::Level::DEBUG));
 
         MyServer server(address, port, max_conn);
+
+        http::Signal::register_handler(SIGINT, &MyServer::handle_signal, &server);
+        http::Signal::register_handler(SIGTERM, &MyServer::handle_signal, &server);
+
         server.run(thread_limit);
     }
     catch (const http::ServerError& se)
