@@ -8,33 +8,22 @@ namespace http::network
 {
 
 
-bool send_response(Connection& conn, const HttpResponse& response)
+std::string HttpResponse::to_string()
 {
     std::ostringstream oss;
 
-    oss << response.version << ' ' << response.status << CRLF;
+    oss << version << ' ' << status << CRLF;
 
-    for (auto& i : response.headers)
+    for (auto& i : headers)
     {
         oss << i.first << ':' << i.second << CRLF;
     }
 
     oss << CRLF
-        << response.body
+        << body
         << CRLF << CRLF;
 
-    std::string response_msg = oss.str();
-    std::string_view response_msg_sv = response_msg;
-
-    size_t bytes_written = conn.write(response_msg_sv.data(), static_cast<size_t>(oss.tellp()));
-    while (bytes_written < static_cast<size_t>(oss.tellp()))
-    {
-        response_msg_sv.remove_prefix(bytes_written);
-
-        utils::Coroutine::yield();
-
-        bytes_written = conn.write(response_msg_sv.data(), static_cast<size_t>(oss.tellp()));
-    }
+    return oss.str();
 }
 
 
