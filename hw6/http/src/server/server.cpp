@@ -1,5 +1,10 @@
 #include "http/server/server.hpp"
 
+#include "http/server/server_worker.hpp"
+#include "http/errors.hpp"
+
+#include <arpa/inet.h>
+
 
 namespace http
 {

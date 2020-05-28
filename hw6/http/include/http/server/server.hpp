@@ -4,12 +4,7 @@
 #include "http/utils/file_descriptor.hpp"
 #include "http/network/protocol/http_request.hpp"
 #include "http/network/protocol/http_response.hpp"
-#include "http/server/server_worker.hpp"
-#include "http/errors.hpp"
 
-#include <arpa/inet.h>
-
-#include <csignal>
 #include <thread>
 #include <vector>
 
