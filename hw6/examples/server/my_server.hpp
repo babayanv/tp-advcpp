@@ -14,9 +14,16 @@ public:
     }
 
 
-    http::network::HttpResponse on_request(const http::network::HttpRequest& request)
+    http::network::HttpResponse on_request(const http::network::HttpRequest& request) override
     {
         log::info("MY LOG MSG - received request:");
+        log::info(std::string(request.method) + ' ' + std::string(request.path) + ' ' + std::string(request.version));
+        for (auto& i : request.headers)
+        {
+            log::info(std::string(i.first) + ": " + std::string(i.second));
+        }
+        log::info(std::string(request.body));
+
         validate_method(request.method) && validate_path(request.path) && validate_version(request.version);
 
         http::network::HttpResponse response{};
