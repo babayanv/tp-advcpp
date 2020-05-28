@@ -105,16 +105,14 @@ void ServerWorker::accept_clients()
             throw ServerError("Error accepting connection: ");
         }
 
-        add_epoll(conn_fd, EPOLLIN | EPOLLRDHUP | EPOLLEXCLUSIVE);
+        add_epoll(conn_fd, EPOLLIN | EPOLLEXCLUSIVE);
     }
 }
 
 
 void ServerWorker::handle_client(int fd, epoll_event event)
 {
-    if (event.events & EPOLLHUP ||
-        event.events & EPOLLERR ||
-        event.events & EPOLLRDHUP)
+    if (event.events & EPOLLHUP || event.events & EPOLLERR)
     {
         return;
     }
