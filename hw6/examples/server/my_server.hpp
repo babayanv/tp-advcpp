@@ -5,9 +5,15 @@
 #include "log/Logger.hpp"
 
 
-class MyServer : public http::Server<MyServer>
+class MyServer : public http::Server
 {
 public:
+    MyServer(std::string_view address, uint16_t port, size_t max_conn)
+        : Server(address, port, max_conn)
+    {
+    }
+
+
     http::network::HttpResponse on_request(const http::network::HttpRequest& request)
     {
         log::info("MY LOG MSG - received request:");

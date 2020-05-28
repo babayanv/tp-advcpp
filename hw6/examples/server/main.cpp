@@ -21,7 +21,9 @@ int main(int argc, char* argv[])
     try
     {
         log::init(log::create_stderr_logger(log::Level::DEBUG));
-        MyServer::init(address, port, max_conn).run(thread_limit);
+
+        MyServer server(address, port, max_conn);
+        server.run(thread_limit);
     }
     catch (const http::ServerError& se)
     {

@@ -11,6 +11,7 @@ set(HTTP_LIB_SRCS
     "${PROJECT_SOURCE_DIR}/src/utils/file_descriptor.cpp"
     "${PROJECT_SOURCE_DIR}/src/utils/coroutine.cpp"
 
+    "${PROJECT_SOURCE_DIR}/src/server/server.cpp"
     "${PROJECT_SOURCE_DIR}/src/server/server_worker.cpp"
 
     "${PROJECT_SOURCE_DIR}/src/errors.cpp"
