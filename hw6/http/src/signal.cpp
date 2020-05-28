@@ -1,10 +1,11 @@
 #include "http/signal.hpp"
 
-#include <csignal>
-
 
 namespace http
 {
+
+
+std::unordered_multimap<int, Signal::Handler> Signal::s_sig2handler{};
 
 
 void Signal::register_handler(int signal, const Handler& handler)

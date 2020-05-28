@@ -119,7 +119,7 @@ void Server::join_threads()
 }
 
 
-void Server::handle_signal(int)
+void Server::handle_signal()
 {
     join_threads();
     close();

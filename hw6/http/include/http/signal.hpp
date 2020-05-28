@@ -2,6 +2,7 @@
 #define HTTP_SIGNAL_HPP
 
 #include <functional>
+#include <csignal>
 
 
 namespace http

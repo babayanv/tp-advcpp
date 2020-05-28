@@ -36,7 +36,7 @@ public:
 
     void join_threads();
 
-    virtual void handle_signal(int);
+    virtual void handle_signal();
 
     virtual network::HttpResponse on_request(const network::HttpRequest& request) = 0;
 
