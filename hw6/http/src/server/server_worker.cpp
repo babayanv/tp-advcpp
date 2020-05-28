@@ -50,7 +50,7 @@ void ServerWorker::run()
             }
             else
             {
-                m_clients.emplace(utils::Coroutine::create_and_run([&] { handle_client(fd, events[i]); }));
+                m_clients.emplace(utils::Coroutine::create_and_run(&ServerWorker::handle_client, this, fd, events[i]));
             }
         }
     }
