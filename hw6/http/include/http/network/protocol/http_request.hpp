@@ -13,8 +13,8 @@ namespace http::network
 struct HttpRequest
 {
     method::value_type method;
-    std::string_view path;
-    std::map<std::string_view, std::string_view> query_params;
+    std::string path;
+    std::map<std::string, std::string> query_params;
     std::string_view version;
     std::map<std::string_view, std::string_view> headers;
     std::string_view body;
@@ -23,7 +23,7 @@ struct HttpRequest
 
 HttpRequest build_request(std::string_view request_sv);
 
-std::string url_decode(std::string_view sv);
+std::string unescape(std::string_view origin);
 
 
 class RequestBuilder

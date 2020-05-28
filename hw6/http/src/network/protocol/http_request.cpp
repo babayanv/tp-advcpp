@@ -12,24 +12,29 @@ HttpRequest build_request(std::string_view request_sv)
 }
 
 
-std::string url_decode(std::string_view sv)
+std::string unescape(std::string_view origin)
 {
-    std::string decoded_str(sv);
+    std::string result{};
 
-    for (size_t url_encode_pos = sv.find('%'); url_encode_pos != std::string::npos; url_encode_pos = sv.find('%'))
+    for (size_t escaped_pos = origin.find('%'); escaped_pos != std::string_view::npos; escaped_pos = origin.find('%'))
     {
-        std::string_view url_encode = sv.substr(url_encode_pos + 1, 2);
+        std::string_view escaped = origin.substr(escaped_pos + 1, 2);
 
-        char url_decode = static_cast<char>(std::stoul(url_encode.data(), nullptr, 16));
-        if (url_decode == 0)
+        char unescaped = static_cast<char>(std::stoul(escaped.data(), nullptr, 16));
+        if (unescaped == 0)
         {
+            result += origin.substr(0, escaped_pos);
+            origin.remove_prefix(escaped_pos);
             continue;
         }
 
-        decoded_str.replace(url_encode_pos, 3, 1, url_decode);
+        result += unescaped;
+        origin.remove_prefix(escaped_pos + 3);
     }
 
-    return decoded_str;
+    result += origin;
+
+    return result;
 }
 
 
@@ -60,7 +65,7 @@ void RequestBuilder::get_path()
 {
     size_t pos = m_request_sv.find(" HTTP/");
 
-    m_request.path = m_request_sv.substr(0, pos);
+    m_request.path = unescape(m_request_sv.substr(0, pos));
 
     size_t query_string_pos = m_request.path.find('?');
     if (query_string_pos != std::string::npos)
@@ -135,7 +140,7 @@ void RequestBuilder::parse_query_string(std::string_view query_string)
         std::string_view query_param_value = query_string.substr(0, query_param_value_pos);
         query_string.remove_prefix(query_param_value_pos + 1);
 
-        m_request.query_params.emplace(query_param_name, query_param_value);
+        m_request.query_params.emplace(unescape(query_param_name), unescape(query_param_value));
     }
 }
 
