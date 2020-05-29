@@ -19,9 +19,14 @@ std::string HttpResponse::to_string()
         oss << i.first << ':' << i.second << CRLF;
     }
 
-    oss << CRLF
-        << body
-        << CRLF << CRLF;
+    if (!body.empty())
+    {
+        oss << CRLF
+            << body
+            << CRLF;
+    }
+
+    oss << CRLF;
 
     return oss.str();
 }
