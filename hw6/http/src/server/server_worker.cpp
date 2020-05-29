@@ -4,7 +4,6 @@
 #include <arpa/inet.h>
 
 #include <utility>
-#include <sstream>
 
 
 namespace http
@@ -139,12 +138,14 @@ void ServerWorker::handle_client(int fd, epoll_event event)
 
         if (msg_received.empty())
         {
+            utils::Coroutine::yield();
+
             if (is_read_timed_out(last_resumed))
             {
+                m_clients.erase(fd);
                 return;
             }
 
-            utils::Coroutine::yield();
             last_resumed = current_time();
             continue;
         }
@@ -163,6 +164,7 @@ void ServerWorker::handle_client(int fd, epoll_event event)
 
             if (is_write_timed_out(last_resumed))
             {
+                m_clients.erase(fd);
                 return;
             }
 
@@ -172,7 +174,8 @@ void ServerWorker::handle_client(int fd, epoll_event event)
         auto elem = request.headers.find("Connection");
         if (elem == request.headers.end() || elem->second != "Keep-Alive")
         {
-            break;
+            m_clients.erase(fd);
+            return;
         }
     }
 }
