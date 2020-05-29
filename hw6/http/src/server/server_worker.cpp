@@ -36,11 +36,15 @@ void ServerWorker::run()
         {
             if (errno == EINTR)
             {
-                check_clients_timeout();
                 continue;
             }
 
             throw ServerError("Error waiting epoll: ");
+        }
+        if (fd_count == 0)
+        {
+            check_clients_timeout();
+            continue;
         }
 
         for (int i = 0; i < fd_count; ++i)
@@ -57,7 +61,9 @@ void ServerWorker::run()
 
                 if (client == m_clients.end())
                 {
-                    m_clients.emplace(fd, utils::Coroutine::create_and_run(&ServerWorker::handle_client, this, fd, events[i]));
+                    auto routine = utils::Coroutine::create(&ServerWorker::handle_client, this, fd, events[i]);
+                    m_clients.emplace(fd, routine);
+                    utils::Coroutine::resume(routine);
                 }
                 else
                 {
@@ -124,7 +130,7 @@ void ServerWorker::accept_clients()
 
 void ServerWorker::handle_client(int fd, epoll_event event)
 {
-    if (event.events != EPOLLIN)
+    if (!(event.events & EPOLLIN))
     {
         return;
     }
