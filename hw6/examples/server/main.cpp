@@ -1,5 +1,5 @@
 #include "utils/parser.hpp"
-#include "my_server.hpp"
+#include "my_server/my_server.hpp"
 
 #include "http/errors.hpp"
 #include "http/signal.hpp"
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     {
         log::init(log::create_stderr_logger(log::Level::DEBUG));
 
-        MyServer server(address, port, max_conn);
+        MyServer server(address, port, max_conn, doc_root);
 
         http::Signal::register_handler(SIGINT, &MyServer::handle_signal, &server);
         http::Signal::register_handler(SIGTERM, &MyServer::handle_signal, &server);

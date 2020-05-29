@@ -3,7 +3,7 @@
 
 #include "http/server/server.hpp"
 
-#include "log/Logger.hpp"
+#include "../../../log/include/log/Logger.hpp"
 
 #include <utility>
 #include <filesystem>
@@ -12,83 +12,20 @@
 class MyServer : public http::Server
 {
 public:
-    MyServer(std::string_view address, uint16_t port, size_t max_conn, std::string doc_root)
-        : Server(address, port, max_conn)
-        , m_doc_root(std::move(doc_root))
-    {
-    }
+    MyServer(std::string_view address, uint16_t port, size_t max_conn, std::string_view doc_root);
 
-
-    http::network::HttpResponse on_request(const http::network::HttpRequest& request, SendFileCallback& enqueue_send_file) override
-    {
-//        Can use log:: here
-//        Ex. - log::info("Request received!");
-
-        validate_method(request.method) && validate_path(request.path) && validate_version(request.version);
-
-        std::string file_path = m_doc_root + request.path;
-        if (is_file_available(file_path, request.method))
-        {
-            enqueue_send_file(file_path); // entered file will be sent after the returned response
-        }
-
-        http::network::HttpResponse response{};
-        response.version = request.version;
-        response.status = m_status;
-
-        return response;
-    }
+    http::network::HttpResponse on_request(const http::network::HttpRequest& request, SendFileCallback& enqueue_send_file) override;
 
 private:
     std::string m_doc_root;
-
     http::status::value_type m_status = http::status::S_200_OK;
 
-    bool validate_method(std::string_view method)
-    {
-        if (method != http::method::M_GET &&
-            method != http::method::M_POST)
-        {
-            m_status = http::status::S_405_MNA;
-            return false;
-        }
+private:
+    bool validate_method(std::string_view method);
+    bool validate_path(std::string_view path);
+    bool validate_version(std::string_view version);
 
-        return true;
-    }
-
-
-    bool validate_path(std::string_view path)
-    {
-        if (path.find("../") != std::string::npos)
-        {
-            m_status = http::status::S_403_F;
-            return false;
-        }
-
-        return true;
-    }
-
-
-    bool validate_version(std::string_view version)
-    {
-        if (!version.starts_with("HTTP/"))
-        {
-            m_status = http::status::S_400_BR;
-            return false;
-        }
-
-        return true;
-    }
-
-    bool is_file_available(std::string_view file_path, http::method::value_type method) {
-        namespace fs = std::filesystem;
-
-        if (m_status == http::status::S_200_OK && !fs::exists(file_path)) {
-            m_status = http::status::S_404_NF;
-        }
-
-        return m_status == http::status::S_200_OK && method == http::method::M_GET;
-    }
+    bool is_file_available(std::string_view file_path, http::method::value_type method);
 };
 
 #endif // MY_SERVER_HPP
