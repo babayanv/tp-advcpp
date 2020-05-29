@@ -145,9 +145,13 @@ size_t Connection::send_file(std::string_view file_path)
         throw ConnectionError("Error sending file to socket: ");
     }
 
-    while (true)
+    off_t read_offset = 0;
+    size_t bytes_left = fs::file_size(file_path);
+    size_t bytes_written_total = 0;
+
+    do
     {
-        ssize_t bytes_written = ::sendfile(m_sock_fd, file_fd, nullptr, fs::file_size(file_path));
+        ssize_t bytes_written = ::sendfile(m_sock_fd, file_fd, &read_offset, bytes_left);
 
         if (bytes_written < 0)
         {
@@ -157,14 +161,18 @@ size_t Connection::send_file(std::string_view file_path)
             }
             if (errno == EAGAIN || errno == EWOULDBLOCK)
             {
-                return 0;
+                return bytes_written_total;
             }
 
             throw ConnectionError("Error sending file to socket: ");
         }
 
-        return static_cast<size_t>(bytes_written);
+        bytes_written_total += static_cast<size_t>(bytes_written);
+        bytes_left -= static_cast<size_t>(bytes_written);
     }
+    while (bytes_left > 0);
+
+    return bytes_written_total;
 }
 
 

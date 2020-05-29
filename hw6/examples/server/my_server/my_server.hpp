@@ -2,40 +2,46 @@
 #define MY_SERVER_HPP
 
 #include "http/server/server.hpp"
+
 #include "log/Logger.hpp"
+
+#include <utility>
+#include <filesystem>
 
 
 class MyServer : public http::Server
 {
 public:
-    MyServer(std::string_view address, uint16_t port, size_t max_conn)
+    MyServer(std::string_view address, uint16_t port, size_t max_conn, std::string doc_root)
         : Server(address, port, max_conn)
+        , m_doc_root(std::move(doc_root))
     {
     }
 
 
-    http::network::HttpResponse on_request(const http::network::HttpRequest& request) override
+    http::network::HttpResponse on_request(const http::network::HttpRequest& request, SendFileCallback& enqueue_send_file) override
     {
-        log::info("MY LOG MSG - received request:");
-        log::info(std::string(request.method) + ' ' + std::string(request.path) + ' ' + std::string(request.version));
-        for (auto& i : request.headers)
-        {
-            log::info(std::string(i.first) + ": " + std::string(i.second));
-        }
-        log::info(std::string(request.body));
+//        Can use log:: here
+//        Ex. - log::info("Request received!");
 
         validate_method(request.method) && validate_path(request.path) && validate_version(request.version);
+
+        std::string file_path = m_doc_root + request.path;
+        if (is_file_available(file_path, request.method))
+        {
+            enqueue_send_file(file_path); // entered file will be sent after the returned response
+        }
 
         http::network::HttpResponse response{};
         response.version = request.version;
         response.status = m_status;
-        response.headers = request.headers;
-        response.body = request.body;
 
         return response;
     }
 
 private:
+    std::string m_doc_root;
+
     http::status::value_type m_status = http::status::S_200_OK;
 
     bool validate_method(std::string_view method)
@@ -72,6 +78,16 @@ private:
         }
 
         return true;
+    }
+
+    bool is_file_available(std::string_view file_path, http::method::value_type method) {
+        namespace fs = std::filesystem;
+
+        if (m_status == http::status::S_200_OK && !fs::exists(file_path)) {
+            m_status = http::status::S_404_NF;
+        }
+
+        return m_status == http::status::S_200_OK && method == http::method::M_GET;
     }
 };
 
