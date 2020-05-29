@@ -158,7 +158,10 @@ void ServerWorker::handle_client(int fd, epoll_event event)
 
         network::HttpRequest request(msg_received);
 
-        std::string msg_to_send = m_on_request(request).to_string();
+        std::queue<std::string> after_response_queue;
+        EnqueueCallback enqueue_callback = [&after_response_queue](std::string_view file_path){ after_response_queue.emplace(file_path); };
+
+        std::string msg_to_send = m_on_request(request, enqueue_callback).to_string();
         std::string_view msg_to_send_sv = msg_to_send;
         size_t bytes_written = conn.write(msg_to_send_sv.data(), msg_to_send_sv.size());
 
@@ -175,6 +178,12 @@ void ServerWorker::handle_client(int fd, epoll_event event)
             }
 
             bytes_written = conn.write(msg_to_send_sv.data(), msg_to_send_sv.size());
+        }
+
+        while (!after_response_queue.empty())
+        {
+            conn.send_file(after_response_queue.front());
+            after_response_queue.pop();
         }
 
         auto elem = request.headers.find("Connection");

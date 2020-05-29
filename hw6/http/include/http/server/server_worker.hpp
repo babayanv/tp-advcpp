@@ -11,6 +11,7 @@
 
 #include <string_view>
 #include <unordered_map>
+#include <queue>
 #include <functional>
 #include <chrono>
 
@@ -22,7 +23,8 @@ namespace http
 class ServerWorker
 {
 public:
-    using Callback = std::function<network::HttpResponse(const network::HttpRequest&)>;
+    using EnqueueCallback = std::function<void(std::string_view)>;
+    using Callback = std::function<network::HttpResponse(const network::HttpRequest&, EnqueueCallback&)>;
     using TimeoutType = std::chrono::duration<int, std::milli>;
     using TimePoint = std::chrono::time_point<std::chrono::system_clock, TimeoutType>;
 

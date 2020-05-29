@@ -91,12 +91,20 @@ void Server::run(size_t thread_limit, TimeoutType read_timeout, TimeoutType writ
         m_threads.emplace_back(
             [this, read_timeout, write_timeout]
             {
-                ServerWorker sw(m_fd, m_done, read_timeout, write_timeout, [this](const network::HttpRequest& request) { return on_request(request); } );
+                ServerWorker sw(m_fd, m_done, read_timeout, write_timeout,
+                        [this](const network::HttpRequest& request, SendFileCallback& enqueue_send_file)
+                        {
+                            return on_request(request, enqueue_send_file);
+                        });
                 sw.run();
             });
     }
 
-    ServerWorker sw(m_fd, m_done, read_timeout, write_timeout, [this](const network::HttpRequest& request) { return on_request(request); });
+    ServerWorker sw(m_fd, m_done, read_timeout, write_timeout,
+            [this](const network::HttpRequest& request, SendFileCallback& enqueue_send_file)
+            {
+                return on_request(request, enqueue_send_file);
+            });
     sw.run();
 }
 

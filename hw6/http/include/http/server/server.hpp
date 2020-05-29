@@ -20,6 +20,7 @@ class Server
 
 public:
     using TimeoutType = ServerWorker::TimeoutType;
+    using SendFileCallback = ServerWorker::EnqueueCallback;
 
     Server(std::string_view address, uint16_t port, size_t max_conn);
     virtual ~Server() noexcept;
@@ -41,7 +42,7 @@ public:
 
     virtual void handle_signal();
 
-    virtual network::HttpResponse on_request(const network::HttpRequest& request) = 0;
+    virtual network::HttpResponse on_request(const network::HttpRequest& request, [[maybe_unused]] SendFileCallback& enqueue_send_file) = 0;
 
 private:
     utils::FileDescriptor m_fd;
