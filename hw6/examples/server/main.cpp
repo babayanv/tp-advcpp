@@ -28,8 +28,8 @@ int main(int argc, char* argv[])
         http::Signal::register_handler(SIGINT, &MyServer::handle_signal, &server);
         http::Signal::register_handler(SIGTERM, &MyServer::handle_signal, &server);
 
-        MyServer::TimeoutType read_timeout{10};
-        MyServer::TimeoutType write_timeout{10};
+        MyServer::TimeoutType read_timeout{5000};
+        MyServer::TimeoutType write_timeout{5000};
 
         server.run(thread_limit, read_timeout, write_timeout);
     }
