@@ -3,7 +3,7 @@
 
 #include "http/network/protocol/http.hpp"
 
-#include <map>
+#include <unordered_map>
 
 
 namespace http::network
@@ -15,9 +15,9 @@ class HttpRequest
 public:
     method::value_type method{};
     std::string path{};
-    std::map<std::string, std::string> query_params{};
+    std::unordered_map<std::string, std::string> query_params{};
     std::string_view version{};
-    std::map<std::string_view, std::string_view> headers{};
+    std::unordered_map<std::string_view, std::string_view> headers{};
     std::string_view body{};
 
     explicit HttpRequest(std::string_view request_sv);

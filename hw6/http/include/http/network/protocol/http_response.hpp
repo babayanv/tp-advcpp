@@ -3,7 +3,7 @@
 
 #include "http/network/protocol/http.hpp"
 
-#include <map>
+#include <unordered_map>
 
 
 namespace http::network
@@ -14,7 +14,7 @@ struct HttpResponse
 {
     std::string version{};
     http::status::value_type status{};
-    std::map<std::string_view, std::string_view> headers{};
+    std::unordered_map<std::string_view, std::string_view> headers{};
     std::string body{};
 
     std::string to_string();
