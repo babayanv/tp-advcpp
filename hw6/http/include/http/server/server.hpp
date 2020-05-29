@@ -4,6 +4,7 @@
 #include "http/utils/file_descriptor.hpp"
 #include "http/network/protocol/http_request.hpp"
 #include "http/network/protocol/http_response.hpp"
+#include "http/server/server_worker.hpp"
 
 #include <thread>
 #include <vector>
@@ -18,6 +19,8 @@ class Server
     using ThreadPool = std::vector<std::thread>;
 
 public:
+    using TimeoutType = ServerWorker::TimeoutType;
+
     Server(std::string_view address, uint16_t port, size_t max_conn);
     virtual ~Server() noexcept;
 
@@ -32,7 +35,7 @@ public:
 
     bool is_opened() const noexcept;
 
-    void run(size_t thread_limit);
+    void run(size_t thread_limit, TimeoutType read_timeout = TimeoutType{-1}, TimeoutType write_timeout = TimeoutType {-1});
 
     void join_threads();
 

@@ -1,6 +1,4 @@
 #include "http/server/server.hpp"
-
-#include "http/server/server_worker.hpp"
 #include "http/errors.hpp"
 
 #include <arpa/inet.h>
@@ -82,7 +80,7 @@ bool Server::is_opened() const noexcept
 }
 
 
-void Server::run(size_t thread_limit)
+void Server::run(size_t thread_limit, TimeoutType read_timeout, TimeoutType write_timeout)
 {
     m_done = false;
 
@@ -91,14 +89,14 @@ void Server::run(size_t thread_limit)
     for (size_t i = 0; i < thread_limit - 1; ++i)
     {
         m_threads.emplace_back(
-            [this]
+            [this, read_timeout, write_timeout]
             {
-                ServerWorker sw(m_fd, m_done, [this](const network::HttpRequest& request) { return on_request(request); } );
+                ServerWorker sw(m_fd, m_done, read_timeout, write_timeout, [this](const network::HttpRequest& request) { return on_request(request); } );
                 sw.run();
             });
     }
 
-    ServerWorker sw(m_fd, m_done, [this](const network::HttpRequest& request) { return on_request(request); });
+    ServerWorker sw(m_fd, m_done, read_timeout, write_timeout, [this](const network::HttpRequest& request) { return on_request(request); });
     sw.run();
 }
 
