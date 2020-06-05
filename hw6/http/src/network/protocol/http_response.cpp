@@ -14,16 +14,14 @@ std::string HttpResponse::to_string() const
 
     oss << version << ' ' << status << CRLF;
 
-    for (auto& i : headers)
+    for (auto& [ header, value ] : headers)
     {
-        oss << i.first << ':' << i.second << CRLF;
+        oss << header << ':' << value << CRLF;
     }
 
     if (!body.empty())
     {
-        oss << CRLF
-            << body
-            << CRLF;
+        oss << CRLF << body << CRLF;
     }
 
     oss << CRLF;
