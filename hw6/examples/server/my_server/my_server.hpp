@@ -14,7 +14,7 @@ class MyServer : public http::Server
 public:
     MyServer(std::string_view address, uint16_t port, size_t max_conn, std::string_view doc_root);
 
-    http::network::HttpResponse on_request(const http::network::HttpRequest& request, SendFileCallback& enqueue_send_file) override;
+    http::network::HttpResponse on_request(const http::network::HttpRequest& request) override;
 
 private:
     std::string m_doc_root;

@@ -8,7 +8,7 @@ namespace http::network
 {
 
 
-std::string HttpResponse::to_string()
+std::string HttpResponse::to_string() const
 {
     std::ostringstream oss;
 

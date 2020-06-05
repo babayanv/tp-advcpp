@@ -10,12 +10,10 @@ namespace http
 {
 
 
-ServerWorker::ServerWorker(const utils::FileDescriptor& server_fd, const bool& done, TimeoutType read_timeout, TimeoutType write_timeout, Callback on_request)
+ServerWorker::ServerWorker(const utils::FileDescriptor& server_fd, const bool& done, HandlerContext ctx)
     : m_server_fd(server_fd)
     , m_done(done)
-    , m_write_timeout(write_timeout)
-    , m_read_timeout(read_timeout)
-    , m_on_request(std::move(on_request))
+    , m_ctx(std::move(ctx))
 {
     create_epoll();
     add_epoll(m_server_fd, EPOLLIN | EPOLLEXCLUSIVE);
@@ -27,7 +25,7 @@ void ServerWorker::run()
     constexpr size_t EPOLL_SIZE = 128;
     epoll_event events[EPOLL_SIZE];
 
-    int epoll_timeout = std::min(m_write_timeout.count(), m_read_timeout.count());
+    int epoll_timeout = std::min(m_ctx.read_timeout.count(), m_ctx.write_timeout.count());
 
     while (!m_done)
     {
@@ -135,64 +133,10 @@ void ServerWorker::handle_client(int fd, epoll_event event)
         return;
     }
 
-    network::Connection conn(fd);
-    TimePoint last_resumed = current_time();
+    ClientHandler cl_handler(fd, m_ctx);
+    cl_handler.handle();
 
-    while (true)
-    {
-        std::string msg_received = conn.read_all(4096);
-
-        if (msg_received.empty())
-        {
-            utils::Coroutine::yield();
-
-            if (is_read_timed_out(last_resumed))
-            {
-                m_clients.erase(fd);
-                return;
-            }
-
-            last_resumed = current_time();
-            continue;
-        }
-
-        network::HttpRequest request(msg_received);
-
-        std::queue<std::string> after_response_queue;
-        EnqueueCallback enqueue_callback = [&after_response_queue](std::string_view file_path){ after_response_queue.emplace(file_path); };
-
-        std::string msg_to_send = m_on_request(request, enqueue_callback).to_string();
-        std::string_view msg_to_send_sv = msg_to_send;
-        size_t bytes_written = conn.write(msg_to_send_sv.data(), msg_to_send_sv.size());
-
-        while (bytes_written < msg_to_send_sv.size())
-        {
-            msg_to_send_sv.remove_prefix(bytes_written);
-
-            utils::Coroutine::yield();
-
-            if (is_write_timed_out(last_resumed))
-            {
-                m_clients.erase(fd);
-                return;
-            }
-
-            bytes_written = conn.write(msg_to_send_sv.data(), msg_to_send_sv.size());
-        }
-
-        while (!after_response_queue.empty())
-        {
-            conn.send_file(after_response_queue.front());
-            after_response_queue.pop();
-        }
-
-        auto elem = request.headers.find("Connection");
-        if (elem == request.headers.end() || elem->second != "Keep-Alive")
-        {
-            m_clients.erase(fd);
-            return;
-        }
-    }
+    m_clients.erase(fd);
 }
 
 
@@ -202,24 +146,6 @@ void ServerWorker::check_clients_timeout()
     {
         utils::Coroutine::resume(client.second);
     }
-}
-
-
-bool ServerWorker::is_read_timed_out(TimePoint compared_time)
-{
-    return (current_time() - compared_time) >= m_read_timeout;
-}
-
-
-bool ServerWorker::is_write_timed_out(TimePoint compared_time)
-{
-    return (current_time() - compared_time) >= m_write_timeout;
-}
-
-
-ServerWorker::TimePoint ServerWorker::current_time()
-{
-    return std::chrono::time_point_cast<TimeoutType>(std::chrono::system_clock::now());
 }
 
 

@@ -4,6 +4,7 @@
 #include "http/network/protocol/http.hpp"
 
 #include <unordered_map>
+#include <queue>
 
 
 namespace http::network
@@ -16,8 +17,9 @@ struct HttpResponse
     http::status::value_type status{};
     std::unordered_map<std::string_view, std::string_view> headers{};
     std::string body{};
+    std::queue<std::string> files;
 
-    std::string to_string();
+    std::string to_string() const;
 };
 
 

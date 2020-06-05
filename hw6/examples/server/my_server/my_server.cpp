@@ -8,22 +8,22 @@ MyServer::MyServer(std::string_view address, uint16_t port, size_t max_conn, std
 }
 
 
-http::network::HttpResponse MyServer::on_request(const http::network::HttpRequest& request, SendFileCallback& enqueue_send_file)
+http::network::HttpResponse MyServer::on_request(const http::network::HttpRequest& request)
 {
-    //        Can use log:: here
-    //        Ex. - log::info("Request received!");
+    // Can use log:: here
+    // Ex. - log::info("Request received!");
 
     validate_method(request.method) && validate_path(request.path) && validate_version(request.version);
-
-    std::string file_path = m_doc_root + request.path;
-    if (is_file_available(file_path, request.method))
-    {
-        enqueue_send_file(file_path); // entered file will be sent after the returned response
-    }
 
     http::network::HttpResponse response{};
     response.version = request.version;
     response.status = m_status;
+
+    std::string file_path = m_doc_root + request.path;
+    if (is_file_available(file_path, request.method))
+    {
+        response.files.emplace(file_path); // entered file will be sent after the returned response
+    }
 
     return response;
 }
