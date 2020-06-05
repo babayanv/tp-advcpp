@@ -5,7 +5,7 @@ namespace http
 {
 
 
-mime_type::value_type determine_content_type(const std::string_view& file_path) {
+mime_type::value_type determine_content_type(std::string_view file_path) {
     if (file_path.ends_with("html") || file_path.ends_with("htm")) {
         return mime_type::MT_HTML;
     }
