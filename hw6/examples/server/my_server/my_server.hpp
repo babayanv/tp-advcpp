@@ -3,7 +3,7 @@
 
 #include "http/server/server.hpp"
 
-#include "../../../log/include/log/Logger.hpp"
+#include "log/Logger.hpp"
 
 #include <utility>
 #include <filesystem>
