@@ -1,5 +1,7 @@
 #include "my_server.hpp"
 
+#include <filesystem>
+
 
 MyServer::MyServer(std::string_view address, uint16_t port, size_t max_conn, std::string_view doc_root)
     : Server(address, port, max_conn)
@@ -65,10 +67,17 @@ bool MyServer::validate_version(std::string_view version)
     return true;
 }
 
+
 bool MyServer::is_file_available(std::string_view file_path, http::method::value_type method) {
     namespace fs = std::filesystem;
 
-    if (m_status == http::status::S_200_OK && !fs::exists(file_path)) {
+    if (m_status == http::status::S_200_OK && fs::is_directory(file_path))
+    {
+        m_status = http::status::S_403_F;
+    }
+
+    if (m_status == http::status::S_200_OK && !fs::exists(file_path))
+    {
         m_status = http::status::S_404_NF;
     }
 
