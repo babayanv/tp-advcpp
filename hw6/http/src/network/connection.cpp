@@ -159,7 +159,7 @@ size_t Connection::send_file(std::string_view file_path)
             {
                 continue;
             }
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EPIPE)
             {
                 return bytes_written_total;
             }

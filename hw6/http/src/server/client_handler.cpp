@@ -24,7 +24,7 @@ void ClientHandler::handle()
 
             if (is_timed_out())
             {
-                return;
+                break;
             }
 
             continue;
@@ -35,13 +35,13 @@ void ClientHandler::handle()
 
         if (!try_send_response(response))
         {
-            return;
+            break;
         }
 
         auto elem = request.headers.find("Connection");
         if (elem == request.headers.end() || elem->second != "Keep-Alive")
         {
-            return;
+            break;
         }
     }
 }

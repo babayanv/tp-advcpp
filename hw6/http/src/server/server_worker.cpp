@@ -39,8 +39,10 @@ void ServerWorker::run()
 
             throw ServerError("Error waiting epoll: ");
         }
-
-        check_clients_timeout();
+        if (fd_count == 0)
+        {
+            check_clients_timeout();
+        }
 
         process_events(events, fd_count);
     }
@@ -95,7 +97,7 @@ void ServerWorker::accept_clients()
             throw ServerError("Error accepting connection: ");
         }
 
-        add_epoll(conn_fd, EPOLLIN | EPOLLEXCLUSIVE);
+        add_epoll(conn_fd, EPOLLIN);
     }
 }
 

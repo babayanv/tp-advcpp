@@ -47,6 +47,7 @@ struct Routine
         getcontext(&ctx);
         ctx.uc_stack.ss_sp = stack.get();
         ctx.uc_stack.ss_size = Ordinator::STACK_SIZE;
+        ctx.uc_stack.ss_flags = 0;
         ctx.uc_link = &ordinator.ctx;
         makecontext(&ctx, entry, 0);
     }

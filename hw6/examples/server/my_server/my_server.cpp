@@ -20,6 +20,7 @@ http::network::HttpResponse MyServer::on_request(const http::network::HttpReques
     http::network::HttpResponse response{};
     response.version = request.version;
     response.status = m_status;
+    response.headers.emplace("Connection", "Keep-Alive");
 
     std::string file_path = m_doc_root + request.path;
     if (is_file_available(file_path, request.method))
