@@ -10,16 +10,8 @@ namespace http
 
 Server::Server(std::string_view address, uint16_t port, size_t max_conn)
 {
-    try
-    {
-        open(address, port);
-        listen(static_cast<int>(max_conn));
-    }
-    catch (const ServerError& se)
-    {
-        close();
-        throw;
-    }
+    open(address, port);
+    listen(static_cast<int>(max_conn));
 }
 
 
