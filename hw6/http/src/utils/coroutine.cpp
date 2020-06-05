@@ -44,10 +44,10 @@ struct Routine
         : func(std::move(f))
         , stack(std::make_unique<uint8_t[]>(Ordinator::STACK_SIZE))
     {
+        getcontext(&ctx);
         ctx.uc_stack.ss_sp = stack.get();
         ctx.uc_stack.ss_size = Ordinator::STACK_SIZE;
         ctx.uc_link = &ordinator.ctx;
-        getcontext(&ctx);
         makecontext(&ctx, entry, 0);
     }
 
