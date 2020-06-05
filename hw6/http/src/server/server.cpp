@@ -97,7 +97,7 @@ void Server::run(size_t thread_limit, TimeoutType read_timeout, TimeoutType writ
     for (size_t i = 0; i < thread_limit - 1; ++i)
     {
         m_threads.emplace_back(
-            [this, ctx]
+            [this, &ctx]
             {
                 ServerWorker sw(m_fd, m_done, ctx);
                 sw.run();
