@@ -24,7 +24,10 @@ std::string HttpResponse::to_string() const
         oss << CRLF << body << CRLF;
     }
 
-    oss << CRLF;
+    if (files.empty())
+    {
+        oss << CRLF;
+    }
 
     return oss.str();
 }

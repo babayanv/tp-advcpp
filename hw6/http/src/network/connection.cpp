@@ -56,7 +56,7 @@ size_t Connection::write(const void* data, size_t len) const
             {
                 continue;
             }
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EPIPE)
             {
                 return 0;
             }

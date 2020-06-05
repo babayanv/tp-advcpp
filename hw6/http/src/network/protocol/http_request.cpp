@@ -6,7 +6,9 @@ namespace http::network
 
 
 HttpRequest::HttpRequest(std::string_view request_sv)
-    : m_request_sv(request_sv)
+    : query_params(10)
+    , headers(10)
+    , m_request_sv(request_sv)
 {
     parse_method();
     parse_path();
