@@ -139,7 +139,9 @@ namespace
         routine_t id = o.current;
         auto &routine = o.routines[id - 1];
 
-        if (routine.func) try
+        if (routine.func)
+        {
+            try
             {
                 routine.func();
             }
@@ -147,6 +149,7 @@ namespace
             {
                 routine.exception = std::current_exception();
             }
+        }
 
         routine.finished = true;
         o.current = 0;

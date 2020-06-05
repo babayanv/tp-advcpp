@@ -45,6 +45,7 @@ private:
     void handle_client(int fd, epoll_event event);
 
     void check_clients_timeout();
+    void process_events(epoll_event* events, int count);
 };
 
 } // namespace http

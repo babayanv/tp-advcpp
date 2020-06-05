@@ -39,36 +39,10 @@ void ServerWorker::run()
 
             throw ServerError("Error waiting epoll: ");
         }
-        if (fd_count == 0)
-        {
-            check_clients_timeout();
-            continue;
-        }
 
-        for (int i = 0; i < fd_count; ++i)
-        {
-            int fd = events[i].data.fd;
+        check_clients_timeout();
 
-            if (fd == m_server_fd)
-            {
-                accept_clients();
-            }
-            else
-            {
-                auto client = m_clients.find(fd);
-
-                if (client == m_clients.end())
-                {
-                    auto routine = utils::Coroutine::create(&ServerWorker::handle_client, this, fd, events[i]);
-                    m_clients.emplace(fd, routine);
-                    utils::Coroutine::resume(routine);
-                }
-                else
-                {
-                    utils::Coroutine::resume(client->second);
-                }
-            }
-        }
+        process_events(events, fd_count);
     }
 }
 
@@ -145,6 +119,35 @@ void ServerWorker::check_clients_timeout()
     for (auto& client : m_clients)
     {
         utils::Coroutine::resume(client.second);
+    }
+}
+
+
+void ServerWorker::process_events(epoll_event* events, int count)
+{
+    for (int i = 0; i < count; ++i)
+    {
+        int fd = events[i].data.fd;
+
+        if (fd == m_server_fd)
+        {
+            accept_clients();
+        }
+        else
+        {
+            auto client = m_clients.find(fd);
+
+            if (client == m_clients.end())
+            {
+                auto routine = utils::Coroutine::create(&ServerWorker::handle_client, this, fd, events[i]);
+                m_clients.emplace(fd, routine);
+                utils::Coroutine::resume(routine);
+            }
+            else
+            {
+                utils::Coroutine::resume(client->second);
+            }
+        }
     }
 }
 
